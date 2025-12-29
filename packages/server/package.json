@@ -1,0 +1,35 @@
+{
+  "name": "@invoice-system/server",
+  "version": "1.0.0",
+  "description": "Backend API server for invoice system",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "migrate": "knex migrate:latest --knexfile src/db/knexfile.ts",
+    "rollback": "knex migrate:rollback --knexfile src/db/knexfile.ts",
+    "seed": "knex seed:run --knexfile src/db/knexfile.ts",
+    "db:setup": "npm run migrate && npm run seed"
+  },
+  "dependencies": {
+    "@invoice-system/shared": "*",
+    "fastify": "^4.25.2",
+    "@fastify/cors": "^8.5.0",
+    "@fastify/helmet": "^11.1.1",
+    "pg": "^8.11.3",
+    "knex": "^3.1.0",
+    "dotenv": "^16.3.1",
+    "pdfkit": "^0.14.0",
+    "date-fns": "^3.0.6",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.10.9",
+    "@types/pdfkit": "^0.13.4",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  }
+}
