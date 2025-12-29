@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { healthRoutes } from './routes/health.js';
 import { projectRoutes } from './routes/project.js';
+import { clientRoutes } from './routes/client.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -40,7 +41,7 @@ export async function buildApp() {
 
   // API v1 routes
   await fastify.register(projectRoutes, { prefix: '/api/v1' });
-  // await fastify.register(clientRoutes, { prefix: '/api/v1' });
+  await fastify.register(clientRoutes, { prefix: '/api/v1' });
   // await fastify.register(invoiceRoutes, { prefix: '/api/v1' });
   // await fastify.register(paymentRoutes, { prefix: '/api/v1' });
 

@@ -50,3 +50,18 @@ export interface CreateClientDTO {
 export interface UpdateClientDTO extends Partial<CreateClientDTO> {
   isActive?: boolean;
 }
+
+export interface ClientQuery {
+  isActive?: boolean;
+  search?: string;  // Search name, email, companyName
+  page?: number;
+  limit?: number;
+}
+
+export interface ClientStats {
+  invoiceCount: number;
+  totalRevenueCents: number;
+  outstandingBalanceCents: number;
+  paidInvoiceCount: number;
+  unpaidInvoiceCount: number;
+}

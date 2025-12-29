@@ -25,6 +25,13 @@ export const updateClientSchema = createClientSchema.partial().extend({
   isActive: z.boolean().optional(),
 });
 
+export const clientQuerySchema = z.object({
+  isActive: z.coerce.boolean().optional(),
+  search: z.string().max(255).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(50),
+});
+
 // Invoice Item schemas
 export const createInvoiceItemSchema = z.object({
   description: z.string().min(1, 'Description is required'),
