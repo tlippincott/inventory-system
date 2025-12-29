@@ -53,3 +53,7 @@ temp/
 NEXT_SESSION.md
 PROGRESS_CHECKLIST.md
 SESSION_NOTES.md
+
+# Seed data (local development only)
+packages/server/src/db/seeds/
+packages/server/dist/db/seeds/

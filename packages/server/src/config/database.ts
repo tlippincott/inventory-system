@@ -1,5 +1,10 @@
 import { Knex } from 'knex';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { env } from './env.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const dbConfig: Knex.Config = {
   client: 'pg',
@@ -15,11 +20,11 @@ export const dbConfig: Knex.Config = {
     max: 10,
   },
   migrations: {
-    directory: './src/db/migrations',
-    extension: 'ts',
+    directory: join(__dirname, '../db/migrations'),
+    extension: 'js',
   },
   seeds: {
-    directory: './src/db/seeds',
-    extension: 'ts',
+    directory: join(__dirname, '../db/seeds'),
+    extension: 'js',
   },
 };
