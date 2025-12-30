@@ -4,7 +4,7 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 
 ## 🚀 Current Status
 
-**Phase 3 Complete** - Backend APIs are ready for time tracking and invoicing.
+**Phase 4 Complete** - Core backend APIs complete for full invoicing workflow.
 
 - ✅ Monorepo structure with workspaces
 - ✅ TypeScript configured for all packages
@@ -16,7 +16,8 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 - ✅ **Projects API** - 11 endpoints with smart delete & unbilled time tracking
 - ✅ **Client Management API** - 7 endpoints with email validation & statistics
 - ✅ **Time Sessions API** - 14 endpoints with timer controls, quarter-hour rounding & billing management
-- ⏳ **Next:** Invoice Management API
+- ✅ **Invoice Management API** - 11 endpoints with time-to-invoice conversion & automatic calculations
+- ⏳ **Next:** Payment API or Frontend implementation
 
 See `SESSION_NOTES.md` for detailed progress and next steps.
 
@@ -159,7 +160,11 @@ Key endpoints:
 - `PATCH /api/v1/time-sessions/:id/stop` - Stop a timer
 - `GET /api/v1/time-sessions/active` - Get currently running session
 - `GET /api/v1/time-sessions/unbilled` - Get unbilled sessions
-- `GET /api/v1/invoices` - List invoices
+- `GET /api/v1/invoices` - List invoices with filtering
+- `POST /api/v1/invoices` - Create invoice manually
+- `POST /api/v1/invoices/from-sessions` - Create invoice from time sessions
+- `GET /api/v1/invoices/:id` - Get invoice with items
+- `PATCH /api/v1/invoices/:id/status` - Update invoice status
 - `GET /api/v1/payments` - List payments
 - `GET /api/v1/dashboard/stats` - Dashboard statistics
 
