@@ -4,7 +4,7 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 
 ## 🚀 Current Status
 
-**Phase 4 Complete** - Core backend APIs complete for full invoicing workflow.
+**Phase 5 Complete** - Full backend API suite complete with payment tracking.
 
 - ✅ Monorepo structure with workspaces
 - ✅ TypeScript configured for all packages
@@ -17,7 +17,8 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 - ✅ **Client Management API** - 7 endpoints with email validation & statistics
 - ✅ **Time Sessions API** - 14 endpoints with timer controls, quarter-hour rounding & billing management
 - ✅ **Invoice Management API** - 11 endpoints with time-to-invoice conversion & automatic calculations
-- ⏳ **Next:** Payment API or Frontend implementation
+- ✅ **Payment API** - 6 endpoints with auto-status updates & overpayment prevention
+- ⏳ **Next:** User Settings API, PDF Generation, or Frontend implementation
 
 See `SESSION_NOTES.md` for detailed progress and next steps.
 
@@ -165,7 +166,10 @@ Key endpoints:
 - `POST /api/v1/invoices/from-sessions` - Create invoice from time sessions
 - `GET /api/v1/invoices/:id` - Get invoice with items
 - `PATCH /api/v1/invoices/:id/status` - Update invoice status
-- `GET /api/v1/payments` - List payments
+- `GET /api/v1/payments` - List payments with filtering
+- `POST /api/v1/payments` - Create payment (auto-updates invoice status)
+- `GET /api/v1/payments/:id` - Get payment details
+- `GET /api/v1/invoices/:id/payments` - Get all payments for invoice
 - `GET /api/v1/dashboard/stats` - Dashboard statistics
 
 ## Environment Variables

@@ -8,6 +8,7 @@ import { projectRoutes } from './routes/project.js';
 import { clientRoutes } from './routes/client.js';
 import { timeSessionRoutes } from './routes/timeSession.js';
 import { invoiceRoutes } from './routes/invoice.js';
+import { paymentRoutes } from './routes/payment.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -46,7 +47,7 @@ export async function buildApp() {
   await fastify.register(clientRoutes, { prefix: '/api/v1' });
   await fastify.register(timeSessionRoutes, { prefix: '/api/v1' });
   await fastify.register(invoiceRoutes, { prefix: '/api/v1' });
-  // await fastify.register(paymentRoutes, { prefix: '/api/v1' });
+  await fastify.register(paymentRoutes, { prefix: '/api/v1' });
 
   return fastify;
 }
