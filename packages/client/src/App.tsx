@@ -1,6 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
+import { store } from './store';
 import { Dashboard } from './pages/Dashboard';
+import { Toaster } from './components/ui/toaster';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,8 +16,9 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
         <div className="min-h-screen bg-gray-50">
           <nav className="bg-white shadow-sm border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,48 +28,75 @@ function App() {
                     <h1 className="text-xl font-bold text-primary-600">Invoice System</h1>
                   </div>
                   <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                    <a
-                      href="/"
-                      className="border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    <NavLink
+                      to="/"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
                     >
                       Dashboard
-                    </a>
-                    <a
-                      href="/invoices"
-                      className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                    </NavLink>
+                    <NavLink
+                      to="/time-tracking"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
                     >
-                      Invoices
-                    </a>
-                    <a
-                      href="/clients"
-                      className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                      Time Tracking
+                    </NavLink>
+                    <NavLink
+                      to="/projects"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
+                    >
+                      Projects
+                    </NavLink>
+                    <NavLink
+                      to="/clients"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
                     >
                       Clients
-                    </a>
-                    <a
-                      href="/payments"
-                      className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                    >
-                      Payments
-                    </a>
+                    </NavLink>
                   </div>
                 </div>
               </div>
             </div>
           </nav>
 
-          <main className="max-w-7xl mx-auto">
+          <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/invoices" element={<div className="p-8">Invoices - Coming soon</div>} />
-              <Route path="/clients" element={<div className="p-8">Clients - Coming soon</div>} />
-              <Route path="/payments" element={<div className="p-8">Payments - Coming soon</div>} />
+              <Route
+                path="/time-tracking"
+                element={<div className="p-8">Time Tracking - Coming soon</div>}
+              />
+              <Route
+                path="/projects"
+                element={<div className="p-8">Projects - Coming soon</div>}
+              />
+              <Route
+                path="/clients"
+                element={<div className="p-8">Clients - Coming soon</div>}
+              />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
+        <Toaster />
       </BrowserRouter>
     </QueryClientProvider>
+    </Provider>
   );
 }
 
