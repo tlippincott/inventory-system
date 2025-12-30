@@ -30,6 +30,14 @@ export async function invoiceRoutes(fastify: FastifyInstance) {
   // Update invoice status (draft/sent/paid/overdue/cancelled)
   fastify.patch('/invoices/:id/status', invoiceController.updateInvoiceStatus);
 
+  // PDF operations
+
+  // Generate or regenerate PDF for an invoice
+  fastify.post('/invoices/:id/generate-pdf', invoiceController.generateInvoicePDF);
+
+  // Download or view invoice PDF
+  fastify.get('/invoices/:id/pdf', invoiceController.getInvoicePDF);
+
   // Client relationship
 
   // Get all invoices for a specific client

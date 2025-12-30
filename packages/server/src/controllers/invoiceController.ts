@@ -1,5 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import * as fs from 'fs';
 import { invoiceService } from '../services/invoiceService.js';
+import { pdfService } from '../services/pdfService.js';
 import type {
   CreateInvoiceDTO,
   UpdateInvoiceDTO,
@@ -195,5 +197,40 @@ export const invoiceController = {
       request.params.itemId
     );
     return reply.send({ data: invoice });
+  },
+
+  /**
+   * POST /api/v1/invoices/:id/generate-pdf
+   * Generate or regenerate PDF for an invoice
+   */
+  async generateInvoicePDF(
+    request: FastifyRequest<{ Params: InvoiceParams }>,
+    reply: FastifyReply
+  ) {
+    const invoice = await pdfService.generateInvoicePDF(request.params.id);
+    return reply.send({
+      data: invoice,
+      message: 'PDF generated successfully',
+    });
+  },
+
+  /**
+   * GET /api/v1/invoices/:id/pdf
+   * Download or view the invoice PDF
+   */
+  async getInvoicePDF(
+    request: FastifyRequest<{ Params: InvoiceParams }>,
+    reply: FastifyReply
+  ) {
+    const filePath = await pdfService.getInvoicePDFPath(request.params.id);
+    const invoice = await invoiceService.getInvoiceById(request.params.id);
+
+    // Set headers for PDF download
+    reply.header('Content-Type', 'application/pdf');
+    reply.header('Content-Disposition', `inline; filename="${invoice.invoiceNumber}.pdf"`);
+
+    // Stream the file
+    const stream = fs.createReadStream(filePath);
+    return reply.send(stream);
   },
 };

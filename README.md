@@ -4,7 +4,7 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 
 ## 🚀 Current Status
 
-**Phase 6 Complete** - Complete backend API with settings management.
+**Phase 7 Complete** - Full backend with professional PDF invoice generation.
 
 - ✅ Monorepo structure with workspaces
 - ✅ TypeScript configured for all packages
@@ -19,7 +19,8 @@ A modern, full-stack invoice management system for freelancers built with Node.j
 - ✅ **Invoice Management API** - 11 endpoints with time-to-invoice conversion & automatic calculations
 - ✅ **Payment API** - 6 endpoints with auto-status updates & overpayment prevention
 - ✅ **User Settings API** - 2 endpoints with business configuration & protected invoice numbering
-- ⏳ **Next:** PDF Generation or Frontend implementation
+- ✅ **PDF Generation** - 2 endpoints with professional invoice PDFs using PDFKit
+- ⏳ **Next:** Frontend implementation
 
 See `SESSION_NOTES.md` for detailed progress and next steps.
 
@@ -173,6 +174,8 @@ Key endpoints:
 - `GET /api/v1/invoices/:id/payments` - Get all payments for invoice
 - `GET /api/v1/user-settings` - Get business settings
 - `PUT /api/v1/user-settings` - Update business settings
+- `POST /api/v1/invoices/:id/generate-pdf` - Generate invoice PDF
+- `GET /api/v1/invoices/:id/pdf` - Download invoice PDF
 - `GET /api/v1/dashboard/stats` - Dashboard statistics
 
 ## Environment Variables
