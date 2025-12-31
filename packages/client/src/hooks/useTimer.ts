@@ -37,11 +37,17 @@ export function useTimer() {
 
   // Sync local timer with server data whenever active session changes
   useEffect(() => {
-    if (activeSession && activeSession.status === 'running') {
+    if (!activeSession) {
+      // No active session
+      dispatch(reset());
+      return;
+    }
+
+    if (activeSession.status === 'running') {
       // Calculate elapsed time from server timestamps
       const serverElapsed = calculateDuration(activeSession.startTime);
       dispatch(syncWithServer({ elapsedSeconds: serverElapsed }));
-    } else if (activeSession && activeSession.status === 'paused') {
+    } else if (activeSession.status === 'paused') {
       // For paused sessions, use the durationSeconds if available
       if (activeSession.durationSeconds) {
         dispatch(
@@ -49,7 +55,7 @@ export function useTimer() {
         );
       }
     } else {
-      // No active session or session stopped
+      // Session stopped
       dispatch(reset());
     }
   }, [activeSession, dispatch]);
@@ -63,6 +69,7 @@ export function useTimer() {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [activeSession?.status, dispatch]);
 
   // Timer control functions

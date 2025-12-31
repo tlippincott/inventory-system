@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface TimerState {
+export interface TimerState {
   /**
    * Local elapsed time in seconds (incremented every second)
    * Synced with server periodically to prevent drift

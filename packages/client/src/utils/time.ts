@@ -78,3 +78,31 @@ export function hoursToSeconds(hours: number): number {
 export function secondsToHours(seconds: number): number {
   return seconds / 3600;
 }
+
+/**
+ * Format date to readable string
+ * @param date - Date to format
+ * @returns Formatted date string (e.g., "Jan 15, 2024")
+ */
+export function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Format time to readable string
+ * @param date - Date to format
+ * @returns Formatted time string (e.g., "2:30 PM")
+ */
+export function formatTime(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}

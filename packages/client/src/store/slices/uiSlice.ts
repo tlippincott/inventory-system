@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { SessionFilters, ProjectFilters, ClientFilters } from '@/types';
 
-interface UiState {
+export interface UiState {
   /**
    * Time session filters
    */

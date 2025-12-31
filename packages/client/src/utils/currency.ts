@@ -43,3 +43,13 @@ export function parseDollars(dollars: string): number {
 export function centsToInput(cents: number): string {
   return (cents / 100).toFixed(2);
 }
+
+/**
+ * Alias for formatCents - format currency
+ * @param cents - Amount in cents (integer)
+ * @param currency - Currency code (default: USD)
+ * @returns Formatted currency string (e.g., "$12.50")
+ */
+export function formatCurrency(cents: number, currency = 'USD'): string {
+  return formatCents(cents, currency);
+}

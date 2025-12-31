@@ -3,6 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { Dashboard } from './pages/Dashboard';
+import { TimeTracking } from './pages/TimeTracking';
+import { Clients } from './pages/Clients';
+import { Projects } from './pages/Projects';
 import { Toaster } from './components/ui/toaster';
 
 const queryClient = new QueryClient({
@@ -77,18 +80,9 @@ function App() {
           <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route
-                path="/time-tracking"
-                element={<div className="p-8">Time Tracking - Coming soon</div>}
-              />
-              <Route
-                path="/projects"
-                element={<div className="p-8">Projects - Coming soon</div>}
-              />
-              <Route
-                path="/clients"
-                element={<div className="p-8">Clients - Coming soon</div>}
-              />
+              <Route path="/time-tracking" element={<TimeTracking />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/clients" element={<Clients />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

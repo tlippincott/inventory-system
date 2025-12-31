@@ -121,7 +121,7 @@ export function usePauseSession() {
 
   return useMutation({
     mutationFn: (id: string) => timeSessionsApi.pause(id),
-    onMutate: async (id) => {
+    onMutate: async () => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: timeSessionKeys.active() });
 
@@ -164,7 +164,7 @@ export function useResumeSession() {
 
   return useMutation({
     mutationFn: (id: string) => timeSessionsApi.resume(id),
-    onMutate: async (id) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: timeSessionKeys.active() });
 
       const previous = queryClient.getQueryData<TimeSession | null>(

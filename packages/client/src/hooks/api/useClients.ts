@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientsApi } from '@/services/clients';
 import type {
-  Client,
   CreateClientDTO,
   UpdateClientDTO,
 } from '@invoice-system/shared';
