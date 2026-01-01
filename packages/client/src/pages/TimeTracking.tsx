@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjects } from '@/hooks/api/useProjects';
 import {
   useActiveSession,
@@ -32,6 +32,7 @@ export function TimeTracking() {
   const { toast } = useToast();
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [description, setDescription] = useState('');
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   // Queries
   const { data: activeSession, isLoading: isLoadingActive } = useActiveSession();
@@ -49,6 +50,17 @@ export function TimeTracking() {
   const pauseMutation = usePauseSession();
   const resumeMutation = useResumeSession();
   const stopMutation = useStopSession();
+
+  // Update timer every second when session is running
+  useEffect(() => {
+    if (activeSession?.status === 'running') {
+      const interval = setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [activeSession?.status]);
 
   const handleStart = async () => {
     if (!selectedProjectId) {
@@ -138,15 +150,18 @@ export function TimeTracking() {
   const calculateElapsedTime = (): number => {
     if (!activeSession) return 0;
 
-    const now = Date.now();
-    const startTime = new Date(activeSession.startTime).getTime();
+    // Get accumulated duration from previous pause/resume cycles
+    const accumulatedSeconds = activeSession.durationSeconds || 0;
 
-    if (activeSession.status === 'paused' && activeSession.endTime) {
-      const pauseTime = new Date(activeSession.endTime).getTime();
-      return Math.floor((pauseTime - startTime) / 1000);
+    // If paused, return only the accumulated duration
+    if (activeSession.status === 'paused') {
+      return accumulatedSeconds;
     }
 
-    return Math.floor((now - startTime) / 1000);
+    // If running, add current elapsed time to accumulated duration
+    const startTime = new Date(activeSession.startTime).getTime();
+    const currentElapsed = Math.floor((currentTime - startTime) / 1000);
+    return accumulatedSeconds + currentElapsed;
   };
 
   const elapsedSeconds = activeSession ? calculateElapsedTime() : 0;

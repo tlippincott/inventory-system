@@ -22,9 +22,11 @@ export const dbConfig: Knex.Config = {
   migrations: {
     directory: join(__dirname, '../db/migrations'),
     extension: 'js',
+    loadExtensions: ['.js'],
   },
   seeds: {
     directory: join(__dirname, '../db/seeds'),
     extension: 'js',
+    loadExtensions: ['.js'],
   },
 };

@@ -16,8 +16,8 @@ export const updateProjectSchema = createProjectSchema.partial().extend({
 
 export const projectQuerySchema = z.object({
   clientId: z.string().uuid('Invalid client ID').optional(),
-  isActive: z.boolean().optional(),
-  isArchived: z.boolean().optional(),
+  isActive: z.coerce.boolean().optional(),
+  isArchived: z.coerce.boolean().optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(50),
 });
@@ -25,7 +25,7 @@ export const projectQuerySchema = z.object({
 // Time Session schemas
 export const startTimeSessionSchema = z.object({
   projectId: z.string().uuid('Invalid project ID'),
-  taskDescription: z.string().min(1, 'Task description is required'),
+  taskDescription: z.string().optional().default(''),
   notes: z.string().optional(),
   isBillable: z.boolean().optional().default(true),
 });
@@ -59,8 +59,8 @@ export const timeSessionQuerySchema = z.object({
   clientId: z.string().uuid('Invalid client ID').optional(),
   projectId: z.string().uuid('Invalid project ID').optional(),
   status: z.enum(['running', 'paused', 'stopped']).optional(),
-  isBillable: z.boolean().optional(),
-  isBilled: z.boolean().optional(),
+  isBillable: z.coerce.boolean().optional(),
+  isBilled: z.coerce.boolean().optional(),
   fromDate: z.coerce.date().optional(),
   toDate: z.coerce.date().optional(),
   page: z.coerce.number().int().min(1).optional().default(1),

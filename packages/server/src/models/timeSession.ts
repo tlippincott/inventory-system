@@ -140,9 +140,48 @@ export const timeSessionModel = {
   },
 
   /**
-   * Find the currently active (running) session
+   * Find the currently active (running or paused) session
    */
   async findActiveSession(): Promise<TimeSession | null> {
+    const row = await db('time_sessions')
+      .select(
+        'time_sessions.*',
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
+      )
+      .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
+      .leftJoin('clients', 'time_sessions.client_id', 'clients.id')
+      .whereIn('time_sessions.status', ['running', 'paused'])
+      .first();
+
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      projectId: row.project_id,
+      clientId: row.client_id,
+      taskDescription: row.task_description,
+      startTime: row.start_time,
+      endTime: row.end_time,
+      durationSeconds: row.duration_seconds,
+      status: row.status,
+      hourlyRateCents: row.hourly_rate_cents,
+      billableAmountCents: row.billable_amount_cents,
+      isBillable: row.is_billable,
+      invoiceItemId: row.invoice_item_id,
+      billedAt: row.billed_at,
+      notes: row.notes,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      project: row.project,
+      client: row.client,
+    };
+  },
+
+  /**
+   * Find the currently running (not paused) session
+   */
+  async findRunningSession(): Promise<TimeSession | null> {
     const row = await db('time_sessions')
       .select(
         'time_sessions.*',

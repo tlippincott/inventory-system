@@ -40,7 +40,7 @@ export function Projects() {
   const { data: projects, isLoading } = useProjects({
     search: debouncedSearch || undefined,
     isActive: showInactive ? undefined : true,
-    isArchived: showArchived ? true : false,
+    isArchived: showArchived ? true : undefined,
   });
 
   const { data: clients } = useClients({ isActive: true });

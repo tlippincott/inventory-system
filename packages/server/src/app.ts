@@ -10,6 +10,7 @@ import { timeSessionRoutes } from './routes/timeSession.js';
 import { invoiceRoutes } from './routes/invoice.js';
 import { paymentRoutes } from './routes/payment.js';
 import { userSettingsRoutes } from './routes/userSettings.js';
+import { dashboardRoutes } from './routes/dashboard.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -44,6 +45,7 @@ export async function buildApp() {
   await fastify.register(healthRoutes);
 
   // API v1 routes
+  await fastify.register(dashboardRoutes, { prefix: '/api/v1' });
   await fastify.register(projectRoutes, { prefix: '/api/v1' });
   await fastify.register(clientRoutes, { prefix: '/api/v1' });
   await fastify.register(timeSessionRoutes, { prefix: '/api/v1' });

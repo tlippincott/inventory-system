@@ -75,10 +75,11 @@ export const timeSessionService = {
     // Validate input data
     const validatedData = startTimeSessionSchema.parse(data) as StartTimeSessionDTO;
 
-    // Check for existing running session
-    const existingRunningSession = await timeSessionModel.findActiveSession();
-    if (existingRunningSession) {
-      throw new ConflictError('A timer is already running. Stop it first.');
+    // Check for existing active session (running or paused)
+    const existingActiveSession = await timeSessionModel.findActiveSession();
+    if (existingActiveSession) {
+      const status = existingActiveSession.status === 'paused' ? 'paused' : 'running';
+      throw new ConflictError(`A timer is already ${status}. Please ${status === 'paused' ? 'resume or stop' : 'stop'} it first.`);
     }
 
     // Verify project exists and get project details
@@ -221,10 +222,19 @@ export const timeSessionService = {
       throw new BadRequestError('Session is already stopped');
     }
 
-    // Calculate duration
+    // Calculate duration based on current status
     const endTime = new Date();
-    const startTime = new Date(session.startTime);
-    const actualDurationSeconds = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+    let actualDurationSeconds: number;
+
+    if (session.status === 'paused') {
+      // If paused, use the already accumulated duration
+      actualDurationSeconds = session.durationSeconds || 0;
+    } else {
+      // If running, add current elapsed time to any accumulated duration
+      const startTime = new Date(session.startTime);
+      const currentElapsed = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+      actualDurationSeconds = (session.durationSeconds || 0) + currentElapsed;
+    }
 
     // Round up to nearest quarter hour (900 seconds = 15 minutes)
     const durationSeconds = Math.ceil(actualDurationSeconds / 900) * 900;
@@ -261,9 +271,19 @@ export const timeSessionService = {
       throw new BadRequestError('Session is already paused');
     }
 
-    // Update status to paused (keep end_time NULL)
+    // Calculate elapsed time since last start/resume
+    const now = new Date();
+    const startTime = new Date(session.startTime);
+    const elapsedSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+
+    // Add to existing duration (if resuming from previous pause)
+    const totalDurationSeconds = (session.durationSeconds || 0) + elapsedSeconds;
+
+    // Update status to paused and save accumulated duration
     return await timeSessionModel.update(id, {
       status: 'paused',
+      durationSeconds: totalDurationSeconds,
+      endTime: now,
     });
   },
 
@@ -288,14 +308,16 @@ export const timeSessionService = {
     }
 
     // Check for other running sessions
-    const existingRunningSession = await timeSessionModel.findActiveSession();
+    const existingRunningSession = await timeSessionModel.findRunningSession();
     if (existingRunningSession) {
       throw new ConflictError('Another timer is running');
     }
 
-    // Update status to running
+    // Reset start time to now, keeping accumulated duration
     return await timeSessionModel.update(id, {
       status: 'running',
+      startTime: new Date(),
+      endTime: null,
     });
   },
 
