@@ -32,16 +32,29 @@ export function Projects() {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [showInactive, setShowInactive] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+
+  type ProjectViewMode = 'active' | 'all' | 'archived';
+  const [viewMode, setViewMode] = useState<ProjectViewMode>('active');
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const { data: projects, isLoading } = useProjects({
-    search: debouncedSearch || undefined,
-    isActive: showInactive ? undefined : true,
-    isArchived: showArchived ? true : undefined,
-  });
+  // Build query params based on view mode
+  const queryParams = (() => {
+    const base = { search: debouncedSearch || undefined };
+
+    switch (viewMode) {
+      case 'active':
+        return { ...base, isActive: true }; // Backend defaults isArchived to false
+      case 'all':
+        return { ...base }; // Backend defaults isArchived to false, isActive undefined = all
+      case 'archived':
+        return { ...base, isArchived: true }; // Show only archived
+      default:
+        return base;
+    }
+  })();
+
+  const { data: projects, isLoading } = useProjects(queryParams);
 
   const { data: clients } = useClients({ isActive: true });
 
@@ -160,18 +173,30 @@ export function Projects() {
                 className="pl-10"
               />
             </div>
-            <Button
-              variant={showInactive ? 'default' : 'outline'}
-              onClick={() => setShowInactive(!showInactive)}
-            >
-              {showInactive ? 'Show Active Only' : 'Show All'}
-            </Button>
-            <Button
-              variant={showArchived ? 'default' : 'outline'}
-              onClick={() => setShowArchived(!showArchived)}
-            >
-              {showArchived ? 'Hide Archived' : 'Show Archived'}
-            </Button>
+            {viewMode !== 'all' && (
+              <Button
+                variant={viewMode === 'all' ? 'default' : 'outline'}
+                onClick={() => setViewMode('all')}
+              >
+                Show All
+              </Button>
+            )}
+            {viewMode !== 'active' && (
+              <Button
+                variant={viewMode === 'active' ? 'default' : 'outline'}
+                onClick={() => setViewMode('active')}
+              >
+                Show Active Only
+              </Button>
+            )}
+            {viewMode !== 'archived' && (
+              <Button
+                variant={viewMode === 'archived' ? 'default' : 'outline'}
+                onClick={() => setViewMode('archived')}
+              >
+                Show Archived
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

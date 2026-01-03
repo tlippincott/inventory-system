@@ -33,6 +33,7 @@ export function useProjects(params?: ProjectFilters) {
       const result = await projectsApi.getAll(params);
       return result.data;
     },
+    enabled: true,
   });
 }
 

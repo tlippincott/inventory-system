@@ -161,7 +161,8 @@ export function TimeTracking() {
     // If running, add current elapsed time to accumulated duration
     const startTime = new Date(activeSession.startTime).getTime();
     const currentElapsed = Math.floor((currentTime - startTime) / 1000);
-    return accumulatedSeconds + currentElapsed;
+    // Ensure elapsed time is never negative (can happen due to clock skew or timing)
+    return accumulatedSeconds + Math.max(0, currentElapsed);
   };
 
   const elapsedSeconds = activeSession ? calculateElapsedTime() : 0;

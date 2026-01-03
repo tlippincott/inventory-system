@@ -154,6 +154,7 @@ export interface ProjectQuery {
   clientId?: string;
   isActive?: boolean;
   isArchived?: boolean;
+  search?: string;
   page?: number;
   limit?: number;
 }

@@ -108,9 +108,9 @@ export const clientService = {
   },
 
   /**
-   * Delete a client (soft delete if has invoices)
+   * Delete a client (only if no invoices exist)
    */
-  async deleteClient(id: string): Promise<{ deleted: boolean; deactivated: boolean }> {
+  async deleteClient(id: string): Promise<{ deleted: boolean }> {
     // Validate UUID format
     if (!id || typeof id !== 'string') {
       throw new BadRequestError('Invalid client ID');
@@ -130,12 +130,17 @@ export const clientService = {
 
     const hasInvoices = Boolean(invoiceCount && Number(invoiceCount.count) > 0);
 
-    // Delete the client (model handles soft vs hard delete)
+    if (hasInvoices) {
+      throw new BadRequestError(
+        'Cannot delete client with existing invoices. Please delete or reassign all invoices first.'
+      );
+    }
+
+    // Delete the client
     await clientModel.delete(id);
 
     return {
-      deleted: !hasInvoices, // Hard deleted if no invoices
-      deactivated: hasInvoices, // Soft deleted (deactivated) if has invoices
+      deleted: true,
     };
   },
 

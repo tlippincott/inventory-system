@@ -25,6 +25,17 @@ export const projectModel = {
 
     if (query.isArchived !== undefined) {
       queryBuilder = queryBuilder.where('projects.is_archived', query.isArchived);
+    } else {
+      // Default: exclude archived projects unless explicitly requested
+      queryBuilder = queryBuilder.where('projects.is_archived', false);
+    }
+
+    if (query.search) {
+      const searchTerm = `%${query.search}%`;
+      queryBuilder = queryBuilder.where(function() {
+        this.whereRaw('projects.name ILIKE ?', [searchTerm])
+          .orWhereRaw('projects.description ILIKE ?', [searchTerm]);
+      });
     }
 
     // Apply pagination

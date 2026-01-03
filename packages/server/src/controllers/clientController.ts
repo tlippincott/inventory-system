@@ -67,7 +67,7 @@ export const clientController = {
 
   /**
    * DELETE /api/v1/clients/:id
-   * Delete a client (soft delete if has invoices)
+   * Delete a client (only if no invoices exist)
    */
   async deleteClient(
     request: FastifyRequest<{ Params: ClientParams }>,
@@ -76,9 +76,7 @@ export const clientController = {
     const result = await clientService.deleteClient(request.params.id);
 
     return reply.send({
-      message: result.deactivated
-        ? 'Client deactivated because it has invoices'
-        : 'Client deleted successfully',
+      message: 'Client deleted successfully',
       ...result,
     });
   },

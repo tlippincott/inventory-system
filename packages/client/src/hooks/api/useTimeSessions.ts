@@ -132,11 +132,18 @@ export function usePauseSession() {
 
       // Optimistically update
       if (previous) {
+        // Calculate current duration to match server calculation
+        const accumulatedSeconds = previous.durationSeconds || 0;
+        const startTime = new Date(previous.startTime).getTime();
+        const currentElapsed = Math.floor((Date.now() - startTime) / 1000);
+        const totalDuration = accumulatedSeconds + Math.max(0, currentElapsed);
+
         queryClient.setQueryData<TimeSession | null>(
           timeSessionKeys.active(),
           {
             ...previous,
             status: 'paused',
+            durationSeconds: totalDuration,
           }
         );
       }
@@ -149,9 +156,9 @@ export function usePauseSession() {
         queryClient.setQueryData(timeSessionKeys.active(), context.previous);
       }
     },
-    onSettled: () => {
-      // Refetch after mutation
-      queryClient.invalidateQueries({ queryKey: timeSessionKeys.active() });
+    onSuccess: () => {
+      // Don't invalidate immediately - let the polling interval (1s) pick up the change
+      // This prevents the flash/jiggle from an immediate refetch
     },
   });
 }
@@ -172,11 +179,13 @@ export function useResumeSession() {
       );
 
       if (previous) {
+        // Optimistically update status and set new start time
         queryClient.setQueryData<TimeSession | null>(
           timeSessionKeys.active(),
           {
             ...previous,
             status: 'running',
+            startTime: new Date().toISOString(),
           }
         );
       }
@@ -188,8 +197,9 @@ export function useResumeSession() {
         queryClient.setQueryData(timeSessionKeys.active(), context.previous);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: timeSessionKeys.active() });
+    onSuccess: () => {
+      // Don't invalidate immediately - let the polling interval (1s) pick up the change
+      // This prevents the flash/jiggle from an immediate refetch
     },
   });
 }

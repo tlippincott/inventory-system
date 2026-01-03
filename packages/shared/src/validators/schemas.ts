@@ -26,7 +26,15 @@ export const updateClientSchema = createClientSchema.partial().extend({
 });
 
 export const clientQuerySchema = z.object({
-  isActive: z.coerce.boolean().optional(),
+  isActive: z.preprocess(
+    (val) => {
+      if (val === '' || val === undefined) return undefined;
+      if (val === 'true' || val === true) return true;
+      if (val === 'false' || val === false) return false;
+      return undefined;
+    },
+    z.boolean().optional()
+  ),
   search: z.string().max(255).optional(),
   page: z.coerce.number().int().min(1).optional().default(1),
   limit: z.coerce.number().int().min(1).max(100).optional().default(50),

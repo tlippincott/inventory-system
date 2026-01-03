@@ -195,27 +195,11 @@ export const clientModel = {
   },
 
   /**
-   * Delete a client (soft delete if has invoices, hard delete otherwise)
+   * Delete a client (hard delete)
+   * Note: Service layer should ensure client has no invoices before calling this
    */
   async delete(id: string): Promise<void> {
-    // Check if client has invoices
-    const invoiceCount = await db('invoices')
-      .where({ client_id: id })
-      .count('* as count')
-      .first();
-
-    if (invoiceCount && Number(invoiceCount.count) > 0) {
-      // Soft delete: deactivate the client
-      await db('clients')
-        .where({ id })
-        .update({
-          is_active: false,
-          updated_at: db.fn.now(),
-        });
-    } else {
-      // Hard delete: no invoices exist
-      await db('clients').where({ id }).del();
-    }
+    await db('clients').where({ id }).del();
   },
 
   /**
