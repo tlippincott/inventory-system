@@ -10,6 +10,7 @@ import type {
 interface InvoiceQuery {
   clientId?: string;
   status?: InvoiceStatus;
+  search?: string;
   fromDate?: Date;
   toDate?: Date;
   sortBy?: 'date' | 'amount' | 'due_date';
@@ -38,6 +39,14 @@ export const invoiceModel = {
 
     if (query.status) {
       queryBuilder = queryBuilder.where('invoices.status', query.status);
+    }
+
+    if (query.search) {
+      queryBuilder = queryBuilder.where(function() {
+        this.where('invoices.invoice_number', 'ilike', `%${query.search}%`)
+          .orWhere('clients.name', 'ilike', `%${query.search}%`)
+          .orWhere('clients.company_name', 'ilike', `%${query.search}%`);
+      });
     }
 
     if (query.fromDate) {
@@ -232,15 +241,45 @@ export const invoiceModel = {
         position: item.position,
       }));
 
-      await trx('invoice_items').insert(itemsToInsert);
+      const createdItems = await trx('invoice_items').insert(itemsToInsert).returning('*');
 
-      // Fetch the created invoice with full data using the original db connection
-      const created = await this.findById(invoice.id);
-      if (!created) {
-        throw new Error('Failed to create invoice');
-      }
+      // Fetch client data
+      const client = await trx('clients')
+        .select('id', 'name', 'company_name as companyName', 'email')
+        .where('id', invoice.client_id)
+        .first();
 
-      return created;
+      // Return the created invoice with items
+      return {
+        id: invoice.id,
+        invoiceNumber: invoice.invoice_number,
+        clientId: invoice.client_id,
+        issueDate: invoice.issue_date,
+        dueDate: invoice.due_date,
+        status: invoice.status,
+        subtotalCents: Number(invoice.subtotal_cents),
+        taxRate: Number(invoice.tax_rate),
+        taxAmountCents: Number(invoice.tax_amount_cents),
+        totalCents: Number(invoice.total_cents),
+        currency: invoice.currency,
+        notes: invoice.notes,
+        terms: invoice.terms,
+        pdfPath: invoice.pdf_path,
+        createdAt: invoice.created_at,
+        updatedAt: invoice.updated_at,
+        client: client || { id: invoice.client_id, name: 'Unknown', companyName: null, email: null },
+        items: createdItems.map(item => ({
+          id: item.id,
+          invoiceId: item.invoice_id,
+          description: item.description,
+          quantity: Number(item.quantity),
+          unitPriceCents: Number(item.unit_price_cents),
+          totalCents: Number(item.total_cents),
+          position: item.position,
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        })),
+      };
     });
   },
 

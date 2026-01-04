@@ -27,6 +27,7 @@ interface UpdateStatusBody {
 interface InvoiceQuery {
   clientId?: string;
   status?: InvoiceStatus;
+  search?: string;
   fromDate?: string;
   toDate?: string;
   sortBy?: 'date' | 'amount' | 'due_date';

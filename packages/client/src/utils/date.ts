@@ -33,6 +33,16 @@ export function formatSessionDate(date: Date | string): string {
 }
 
 /**
+ * Format date for display
+ * @param date - Date object or ISO string
+ * @returns Formatted date string (e.g., "Mar 15, 2024")
+ */
+export function formatDate(date: Date | string): string {
+  const d = typeof date === 'string' ? parseISO(date) : date;
+  return format(d, 'MMM d, yyyy');
+}
+
+/**
  * Format date and time for display
  * @param date - Date object or ISO string
  * @returns Formatted date and time string (e.g., "Mar 15, 2024 at 2:30 PM")

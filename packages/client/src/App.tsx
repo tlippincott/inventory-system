@@ -6,6 +6,10 @@ import { Dashboard } from './pages/Dashboard';
 import { TimeTracking } from './pages/TimeTracking';
 import { Clients } from './pages/Clients';
 import { Projects } from './pages/Projects';
+import { Invoices } from './pages/Invoices';
+import { InvoiceDetail } from './pages/InvoiceDetail';
+import { CreateInvoice } from './pages/CreateInvoice';
+import { CreateInvoiceFromSessions } from './pages/CreateInvoiceFromSessions';
 import { Toaster } from './components/ui/toaster';
 
 const queryClient = new QueryClient({
@@ -76,6 +80,16 @@ function App() {
                     >
                       Clients
                     </NavLink>
+                    <NavLink
+                      to="/invoices"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
+                    >
+                      Invoices
+                    </NavLink>
                   </div>
                 </div>
               </div>
@@ -88,6 +102,10 @@ function App() {
               <Route path="/time-tracking" element={<TimeTracking />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/clients" element={<Clients />} />
+              <Route path="/invoices" element={<Invoices />} />
+              <Route path="/invoices/new" element={<CreateInvoice />} />
+              <Route path="/invoices/from-sessions" element={<CreateInvoiceFromSessions />} />
+              <Route path="/invoices/:id" element={<InvoiceDetail />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

@@ -71,6 +71,21 @@ export interface ClientFilters {
 }
 
 /**
+ * Filter state for invoices
+ */
+export interface InvoiceFilters {
+  clientId?: string;
+  status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  fromDate?: string;
+  toDate?: string;
+  search?: string;
+  sortBy?: 'invoice_number' | 'issue_date' | 'due_date' | 'total';
+  order?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+/**
  * Statistics for dashboard
  */
 export interface DashboardStats {

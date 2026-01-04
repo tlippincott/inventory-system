@@ -338,3 +338,153 @@ Phase 2 is **100% complete**. The frontend now has a fully functional UI with:
 - Proper error handling and user feedback
 
 The application is ready for integration testing and can be extended with additional features like invoice management, payments, and settings.
+
+---
+
+## Bug Fixes & Improvements (Jan 2, 2026)
+
+### Projects Page Filter Buttons - Complete Refactor
+
+**Problem:**
+- Two independent boolean states (`showInactive`, `showArchived`) created confusing UX
+- "Hide Archived" button text was backwards from user mental model
+- Axios serialization issues with boolean `false` values in query params
+- Allowed conflicting filter states (e.g., "Show All" + "Hide Archived")
+
+**Solution:**
+- Replaced with single `viewMode` enum: `'active' | 'all' | 'archived'`
+- Implemented three-state button system:
+  - **Active view**: Shows "Show All" and "Show Archived" buttons
+  - **All view**: Shows "Show Active Only" and "Show Archived" buttons
+  - **Archived view**: Shows only "Show Active Only" button
+- Fixed query param logic to only send `true` or `undefined`, never `false`
+- Backend defaults `isArchived` to `false` when not specified
+
+**Impact:**
+- Clearer UX with mutually exclusive states
+- No more conflicting filter combinations
+- Aligned with Clients page pattern
+- More intuitive button labeling
+
+### Query Parameter Handling Improvements
+
+**Changes:**
+- Added Zod preprocessors for boolean query parameters in validators
+- Handle string-to-boolean coercion ("true"/"false" → true/false)
+- Added `search` field support to ProjectQuery interface
+- Backend model now defaults archived filter to false
+
+**Files Modified:**
+- `packages/shared/src/validators/schemas.ts` - Added `isActive` preprocessor
+- `packages/shared/src/validators/timeTracking.ts` - Added `isActive`/`isArchived` preprocessors
+- `packages/shared/src/types/timeTracking.ts` - Added `search` field
+- `packages/server/src/models/project.ts` - Added isArchived default logic
+
+### Client Deletion Logic Simplification
+
+**Problem:**
+- Complex soft delete vs hard delete logic
+- Confusing "deactivated vs deleted" messaging
+- Unnecessary state management
+
+**Solution:**
+- Removed soft delete option entirely
+- Now prevents deletion if client has invoices (throws error)
+- Clear error message: "Cannot delete client with existing invoices"
+- Simpler service layer logic
+
+**Impact:**
+- Clearer business rules
+- Better data integrity
+- Less confusion for users
+
+### Time Tracking UX Improvements
+
+**Changes:**
+- Fixed elapsed time calculation to prevent negative values
+- Improved optimistic updates for pause/resume operations
+- Removed immediate refetch after timer mutations (relies on 1s polling)
+- Eliminated UI "jiggle" during timer state changes
+
+**Files Modified:**
+- `packages/client/src/pages/TimeTracking.tsx` - Elapsed time fix
+- `packages/client/src/hooks/api/useTimeSessions.ts` - Optimistic update improvements
+
+### Code Cleanup
+
+**Removed:**
+- Excessive console.log statements from production code
+- Debug logging from controllers, services, hooks, and pages
+- Unused imports and variables
+
+**Files Cleaned:**
+- `packages/server/src/controllers/projectController.ts`
+- `packages/server/src/services/projectService.ts`
+- `packages/client/src/hooks/api/useProjects.ts`
+- `packages/client/src/pages/Projects.tsx`
+
+---
+
+## Updated Statistics (Jan 2, 2026)
+
+### Backend
+- **Total Endpoints:** 54 (100% complete)
+- **APIs:** 7 (Projects, Clients, Time Sessions, Invoices, Payments, Settings, Dashboard)
+- **Database Tables:** 7 (all migrated and seeded)
+
+### Frontend
+- **Pages Complete:** 4 (Dashboard, Time Tracking, Projects, Clients)
+- **Pages Remaining:** 3 (Invoices, Payments, Settings)
+- **Completion:** ~67%
+
+### Code Quality
+- ✅ No console.log statements in production code
+- ✅ Consistent error handling
+- ✅ Type-safe throughout (100% TypeScript)
+- ✅ Proper form validation with Zod
+- ✅ Optimistic UI updates where appropriate
+- ✅ Real-time data with polling
+- ✅ Professional UI components from shadcn/ui
+
+---
+
+## Next Recommended Work
+
+### Priority 1: Invoice Management Frontend
+Complete the core invoicing workflow by building:
+1. Invoice list page with filters (status, client, dates)
+2. Create invoice from unbilled time sessions
+3. Invoice detail page with line items and totals
+4. PDF preview and download
+5. Manual invoice creation form
+6. Invoice status management
+
+### Priority 2: Payments Frontend
+Enable payment tracking:
+1. Payment list page
+2. Record payment form
+3. Payment history per invoice
+4. Auto-status updates
+
+### Priority 3: Settings Page
+User configuration:
+1. Business information form
+2. Default values (currency, tax rate, payment terms)
+3. Invoice prefix and numbering
+
+### Priority 4: Testing & Polish
+Quality improvements:
+1. Integration tests for critical flows
+2. Mobile responsiveness
+3. Accessibility improvements
+4. Performance optimization
+
+---
+
+**Project Health:** Excellent ✅
+- All backend systems operational
+- Frontend making steady progress
+- Recent bug fixes improved UX significantly
+- Ready for remaining frontend implementation
+
+**Last Commit:** `5f7b0ea` - fix: resolve multiple UI and data filtering bugs
