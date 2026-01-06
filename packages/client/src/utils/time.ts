@@ -82,13 +82,13 @@ export function secondsToHours(seconds: number): number {
 /**
  * Format date to readable string
  * @param date - Date to format
- * @returns Formatted date string (e.g., "Jan 15, 2024")
+ * @returns Formatted date string (e.g., "01-15-2024")
  */
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
   return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
     year: 'numeric',
   });
 }

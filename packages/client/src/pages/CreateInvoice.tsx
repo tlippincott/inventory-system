@@ -233,8 +233,8 @@ export function CreateInvoice() {
                       <p className="text-sm text-gray-600 mt-1">
                         For design work done through {new Date(field.value).toLocaleDateString('en-US', {
                           year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
+                          month: '2-digit',
+                          day: '2-digit'
                         })}
                       </p>
                     )}

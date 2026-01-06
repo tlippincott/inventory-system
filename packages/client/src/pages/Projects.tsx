@@ -236,11 +236,12 @@ export function Projects() {
                       <h3 className="font-semibold text-gray-900">
                         {project.name}
                       </h3>
-                      {!project.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
-                      {project.isArchived && (
-                        <Badge variant="outline">Archived</Badge>
+                      {project.isArchived ? (
+                        <Badge className="bg-red-600 text-white hover:bg-red-700">Archived</Badge>
+                      ) : project.isActive ? (
+                        <Badge className="bg-green-600 text-white hover:bg-green-700">Active</Badge>
+                      ) : (
+                        <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">Inactive</Badge>
                       )}
                     </div>
                     <div className="mt-1 space-y-1">

@@ -167,6 +167,21 @@ export function TimeTracking() {
 
   const elapsedSeconds = activeSession ? calculateElapsedTime() : 0;
 
+  const formatDurationHoursMinutes = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  const getStatusBadgeClass = (status: string): string => {
+    if (status === 'stopped') {
+      return 'bg-red-100 text-red-800 border-red-300';
+    } else if (status === 'paused') {
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    }
+    return '';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -174,7 +189,8 @@ export function TimeTracking() {
       </div>
 
       {/* Active Timer Widget */}
-      <Card className="border-2 border-primary-200 bg-primary-50">
+      <div className="flex justify-center">
+        <Card className="border-2 border-primary-200 bg-primary-50 w-full lg:w-1/2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -243,8 +259,7 @@ export function TimeTracking() {
                   <Button
                     onClick={handlePause}
                     disabled={pauseMutation.isPending}
-                    className="flex-1"
-                    variant="outline"
+                    className="flex-1 h-16 bg-yellow-500 hover:bg-yellow-600 text-white"
                   >
                     <Pause className="h-4 w-4 mr-2" />
                     Pause
@@ -253,8 +268,7 @@ export function TimeTracking() {
                   <Button
                     onClick={handleResume}
                     disabled={resumeMutation.isPending}
-                    className="flex-1"
-                    variant="outline"
+                    className="flex-1 h-16 bg-green-600 hover:bg-green-700 text-white"
                   >
                     <Play className="h-4 w-4 mr-2" />
                     Resume
@@ -263,8 +277,7 @@ export function TimeTracking() {
                 <Button
                   onClick={handleStop}
                   disabled={stopMutation.isPending}
-                  className="flex-1"
-                  variant="destructive"
+                  className="flex-1 h-16 bg-red-600 hover:bg-red-700 text-white"
                 >
                   <Square className="h-4 w-4 mr-2" />
                   Stop
@@ -310,8 +323,7 @@ export function TimeTracking() {
               <Button
                 onClick={handleStart}
                 disabled={!selectedProjectId || startMutation.isPending}
-                className="w-full"
-                size="lg"
+                className="w-full h-16 bg-green-600 hover:bg-green-700 text-white"
               >
                 <Play className="h-5 w-5 mr-2" />
                 Start Timer
@@ -320,9 +332,11 @@ export function TimeTracking() {
           )}
         </CardContent>
       </Card>
+      </div>
 
       {/* Recent Sessions */}
-      <Card>
+      <div className="flex justify-center">
+        <Card className="w-full lg:w-1/2">
         <CardHeader>
           <CardTitle>Recent Sessions</CardTitle>
         </CardHeader>
@@ -356,7 +370,7 @@ export function TimeTracking() {
                       <span className="text-sm text-gray-600">
                         {session.client?.name}
                       </span>
-                      <Badge variant="outline" className="ml-2">
+                      <Badge variant="outline" className={`ml-2 ${getStatusBadgeClass(session.status)}`}>
                         {session.status}
                       </Badge>
                     </div>
@@ -377,8 +391,8 @@ export function TimeTracking() {
                   <div className="text-right ml-4">
                     <div className="font-mono font-semibold text-gray-900">
                       {session.durationSeconds
-                        ? formatDuration(session.durationSeconds)
-                        : '--:--:--'}
+                        ? formatDurationHoursMinutes(session.durationSeconds)
+                        : '--:--'}
                     </div>
                     {session.billableAmountCents !== null && (
                       <div className="text-sm text-gray-600">
@@ -392,6 +406,7 @@ export function TimeTracking() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

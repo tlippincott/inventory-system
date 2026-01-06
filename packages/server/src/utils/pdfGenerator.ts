@@ -144,7 +144,7 @@ function drawBillToAndPayableTo(
   y: number
 ): number {
   const margin = 50;
-  const rightColumnX = 300;
+  const rightColumnX = 375;
   let leftY = y;
   let rightY = y;
 

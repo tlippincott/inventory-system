@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -57,6 +57,7 @@ export function ProjectDialog({
   const { toast } = useToast();
   const createMutation = useCreateProject();
   const updateMutation = useUpdateProject();
+  const [hourlyRateDisplay, setHourlyRateDisplay] = useState('');
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -70,12 +71,14 @@ export function ProjectDialog({
 
   useEffect(() => {
     if (project) {
+      const rateInDollars = (project.defaultHourlyRateCents || 0) / 100;
       form.reset({
         name: project.name,
         clientId: project.clientId,
         description: project.description || '',
         defaultHourlyRateCents: project.defaultHourlyRateCents || 0,
       });
+      setHourlyRateDisplay(rateInDollars > 0 ? `$${rateInDollars.toFixed(2)}` : '');
     } else {
       form.reset({
         name: '',
@@ -83,8 +86,42 @@ export function ProjectDialog({
         description: '',
         defaultHourlyRateCents: 0,
       });
+      setHourlyRateDisplay('');
     }
   }, [project, form]);
+
+  const handleHourlyRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow user to type freely, including partial values
+    setHourlyRateDisplay(value);
+  };
+
+  const handleHourlyRateBlur = () => {
+    // Remove all non-numeric characters except decimal point
+    const numericValue = hourlyRateDisplay.replace(/[^0-9.]/g, '');
+
+    if (numericValue === '') {
+      setHourlyRateDisplay('');
+      form.setValue('defaultHourlyRateCents', 0);
+      return;
+    }
+
+    // Parse as float
+    const dollars = parseFloat(numericValue);
+
+    if (isNaN(dollars)) {
+      setHourlyRateDisplay('');
+      form.setValue('defaultHourlyRateCents', 0);
+      return;
+    }
+
+    // Format as currency and update display
+    setHourlyRateDisplay(`$${dollars.toFixed(2)}`);
+
+    // Convert to cents for the form
+    const cents = Math.round(dollars * 100);
+    form.setValue('defaultHourlyRateCents', cents);
+  };
 
   const onSubmit = async (data: ProjectFormData) => {
     try {
@@ -115,8 +152,6 @@ export function ProjectDialog({
       });
     }
   };
-
-  const hourlyRateInDollars = form.watch('defaultHourlyRateCents') / 100;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -193,19 +228,20 @@ export function ProjectDialog({
             <FormField
               control={form.control}
               name="defaultHourlyRateCents"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
-                  <FormLabel>Hourly Rate (in cents) *</FormLabel>
+                  <FormLabel>Hourly Rate *</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
-                      type="number"
-                      placeholder="10000"
-                      step="100"
+                      type="text"
+                      placeholder="$100.00"
+                      value={hourlyRateDisplay}
+                      onChange={handleHourlyRateChange}
+                      onBlur={handleHourlyRateBlur}
                     />
                   </FormControl>
                   <FormDescription>
-                    ${hourlyRateInDollars.toFixed(2)} per hour
+                    Enter the hourly rate in dollars (e.g., 100 or 100.50)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

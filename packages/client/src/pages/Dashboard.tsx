@@ -135,7 +135,7 @@ export function Dashboard() {
       </div>
 
       {/* Secondary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
@@ -213,34 +213,28 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Button
               onClick={() => navigate('/time-tracking')}
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Clock className="h-4 w-4 mr-2" />
               Track Time
             </Button>
             <Button
               onClick={() => navigate('/projects')}
-              variant="outline"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Manage Projects
             </Button>
             <Button
               onClick={() => navigate('/clients')}
-              variant="outline"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Users className="h-4 w-4 mr-2" />
               Manage Clients
             </Button>
             <Button
-              onClick={() => {
-                // This would navigate to invoices when that page is created
-                alert('Invoice creation coming soon!');
-              }}
-              variant="outline"
-              className="w-full"
+              onClick={() => navigate('/invoices/new')}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               <FileText className="h-4 w-4 mr-2" />
               Create Invoice

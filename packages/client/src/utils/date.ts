@@ -29,27 +29,27 @@ export function formatSessionDate(date: Date | string): string {
     return 'Yesterday';
   }
 
-  return format(d, 'MMM d, yyyy');
+  return format(d, 'MM-dd-yyyy');
 }
 
 /**
  * Format date for display
  * @param date - Date object or ISO string
- * @returns Formatted date string (e.g., "Mar 15, 2024")
+ * @returns Formatted date string (e.g., "03-15-2024")
  */
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? parseISO(date) : date;
-  return format(d, 'MMM d, yyyy');
+  return format(d, 'MM-dd-yyyy');
 }
 
 /**
  * Format date and time for display
  * @param date - Date object or ISO string
- * @returns Formatted date and time string (e.g., "Mar 15, 2024 at 2:30 PM")
+ * @returns Formatted date and time string (e.g., "03-15-2024 at 2:30 PM")
  */
 export function formatDateTime(date: Date | string): string {
   const d = typeof date === 'string' ? parseISO(date) : date;
-  return format(d, "MMM d, yyyy 'at' h:mm a");
+  return format(d, "MM-dd-yyyy 'at' h:mm a");
 }
 
 /**
