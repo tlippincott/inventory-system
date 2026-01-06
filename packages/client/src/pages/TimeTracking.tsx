@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useProjects } from '@/hooks/api/useProjects';
 import {
   useActiveSession,
@@ -30,9 +31,11 @@ import type { StartTimeSessionDTO } from '@invoice-system/shared';
 
 export function TimeTracking() {
   const { toast } = useToast();
+  const location = useLocation();
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [description, setDescription] = useState('');
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const hasAutoStarted = useRef(false);
 
   // Queries
   const { data: activeSession, isLoading: isLoadingActive } = useActiveSession();
@@ -61,6 +64,54 @@ export function TimeTracking() {
       return () => clearInterval(interval);
     }
   }, [activeSession?.status]);
+
+  // Auto-start timer when navigating from "Continue Timer" button
+  useEffect(() => {
+    const state = location.state as {
+      autoStartProjectId?: string;
+      autoStartDescription?: string;
+    };
+
+    // Only auto-start if:
+    // 1. We have autoStartProjectId in state
+    // 2. We haven't auto-started yet
+    // 3. There's no active session already
+    // 4. Projects have loaded
+    if (
+      state?.autoStartProjectId &&
+      !hasAutoStarted.current &&
+      !activeSession &&
+      projects
+    ) {
+      hasAutoStarted.current = true;
+      setSelectedProjectId(state.autoStartProjectId);
+      setDescription(state.autoStartDescription || '');
+
+      // Start the timer after setting the project
+      setTimeout(async () => {
+        try {
+          const data: StartTimeSessionDTO = {
+            projectId: state.autoStartProjectId!,
+            taskDescription: state.autoStartDescription?.trim() || '',
+          };
+
+          await startMutation.mutateAsync(data);
+          setDescription('');
+          toast({
+            title: 'Timer Started',
+            description: 'Continuing from your recent session.',
+          });
+        } catch (error: any) {
+          toast({
+            title: 'Error',
+            description:
+              error.response?.data?.message || 'Failed to start timer',
+            variant: 'destructive',
+          });
+        }
+      }, 100);
+    }
+  }, [location.state, activeSession, projects, startMutation, toast]);
 
   const handleStart = async () => {
     if (!selectedProjectId) {
@@ -178,6 +229,8 @@ export function TimeTracking() {
       return 'bg-red-100 text-red-800 border-red-300';
     } else if (status === 'paused') {
       return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    } else if (status === 'running') {
+      return 'bg-green-100 text-green-800 border-green-300';
     }
     return '';
   };
@@ -242,10 +295,10 @@ export function TimeTracking() {
                     Status
                   </span>
                   <Badge
-                    variant={
+                    className={
                       activeSession.status === 'running'
-                        ? 'default'
-                        : 'secondary'
+                        ? 'bg-green-100 text-green-800 border-green-300 hover:bg-green-100'
+                        : 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-100'
                     }
                   >
                     {activeSession.status}

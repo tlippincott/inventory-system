@@ -78,6 +78,7 @@ export interface InvoiceFilters {
   status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
   fromDate?: string;
   toDate?: string;
+  dateType?: 'issue_date' | 'due_date'; // Whether to filter by issue date or due date
   search?: string;
   sortBy?: 'invoice_number' | 'issue_date' | 'due_date' | 'total';
   order?: 'asc' | 'desc';

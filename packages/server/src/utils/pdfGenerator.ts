@@ -254,7 +254,7 @@ function drawBillToAndPayableTo(
  */
 function drawWorkPeriodLine(
   doc: PDFKit.PDFDocument,
-  invoice: InvoiceWithClient,
+  _invoice: InvoiceWithClient,
   serviceDate: Date,
   y: number
 ): number {

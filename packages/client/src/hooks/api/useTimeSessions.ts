@@ -66,6 +66,33 @@ export function useActiveSession() {
 }
 
 /**
+ * Get the most recent time session with an active project
+ * (for the "Continue Timer" feature on Dashboard)
+ */
+export function useMostRecentActiveProjectSession() {
+  return useQuery({
+    queryKey: [...timeSessionKeys.lists(), 'mostRecentActive'],
+    queryFn: async () => {
+      // Fetch recent stopped sessions, sorted by start time descending
+      const result = await timeSessionsApi.getAll({
+        status: 'stopped',
+        sortBy: 'start_time',
+        order: 'desc',
+        limit: 20, // Get last 20 to find one with active project
+      });
+
+      // Find the first session where the project is active
+      const sessionWithActiveProject = result.data.find(
+        (session) => session.project?.isActive === true
+      );
+
+      return sessionWithActiveProject || null;
+    },
+    staleTime: 30000, // Cache for 30 seconds
+  });
+}
+
+/**
  * Get unbilled time sessions
  */
 export function useUnbilledSessions(params?: {

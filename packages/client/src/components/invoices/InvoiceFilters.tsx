@@ -1,7 +1,15 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Search, X } from 'lucide-react';
 import type { InvoiceFilters } from '@/types';
 
 interface InvoiceFiltersProps {
@@ -21,6 +29,23 @@ export function InvoiceFiltersComponent({
     onChange({
       ...filters,
       status: status === 'all' ? undefined : status,
+    });
+  };
+
+  const handleDateChange = (field: 'fromDate' | 'toDate', value: string) => {
+    onChange({ ...filters, [field]: value || undefined });
+  };
+
+  const handleDateTypeChange = (value: 'issue_date' | 'due_date') => {
+    onChange({ ...filters, dateType: value });
+  };
+
+  const handleClearDateRange = () => {
+    onChange({
+      ...filters,
+      fromDate: undefined,
+      toDate: undefined,
+      dateType: undefined,
     });
   };
 
@@ -85,6 +110,67 @@ export function InvoiceFiltersComponent({
             >
               Cancelled
             </Button>
+          </div>
+
+          {/* Date Range Filter */}
+          <div className="border-t pt-4">
+            <div className="flex items-end gap-4 flex-wrap">
+              <div className="flex-1 min-w-[200px]">
+                <Label htmlFor="date-type" className="text-sm text-gray-600 mb-2 block">
+                  Filter By
+                </Label>
+                <Select
+                  value={filters.dateType || 'issue_date'}
+                  onValueChange={handleDateTypeChange}
+                >
+                  <SelectTrigger id="date-type">
+                    <SelectValue placeholder="Select date type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="issue_date">Issued Date</SelectItem>
+                    <SelectItem value="due_date">Due Date</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <Label htmlFor="from-date" className="text-sm text-gray-600 mb-2 block">
+                  Begin Date
+                </Label>
+                <Input
+                  id="from-date"
+                  type="date"
+                  value={filters.fromDate || ''}
+                  onChange={(e) => handleDateChange('fromDate', e.target.value)}
+                  placeholder="mm/dd/yyyy"
+                />
+              </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <Label htmlFor="to-date" className="text-sm text-gray-600 mb-2 block">
+                  End Date
+                </Label>
+                <Input
+                  id="to-date"
+                  type="date"
+                  value={filters.toDate || ''}
+                  onChange={(e) => handleDateChange('toDate', e.target.value)}
+                  placeholder="mm/dd/yyyy"
+                />
+              </div>
+
+              {(filters.fromDate || filters.toDate) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearDateRange}
+                  className="mb-0"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear Dates
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

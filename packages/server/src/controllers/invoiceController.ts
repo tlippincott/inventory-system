@@ -30,6 +30,7 @@ interface InvoiceQuery {
   search?: string;
   fromDate?: string;
   toDate?: string;
+  dateType?: 'issue_date' | 'due_date';
   sortBy?: 'date' | 'amount' | 'due_date';
   order?: 'asc' | 'desc';
   page?: number;

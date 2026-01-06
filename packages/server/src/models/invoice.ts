@@ -13,6 +13,7 @@ interface InvoiceQuery {
   search?: string;
   fromDate?: Date;
   toDate?: Date;
+  dateType?: 'issue_date' | 'due_date';
   sortBy?: 'date' | 'amount' | 'due_date';
   order?: 'asc' | 'desc';
   page?: number;
@@ -49,12 +50,15 @@ export const invoiceModel = {
       });
     }
 
+    // Apply date range filter
+    const dateColumn = query.dateType === 'due_date' ? 'invoices.due_date' : 'invoices.issue_date';
+
     if (query.fromDate) {
-      queryBuilder = queryBuilder.where('invoices.issue_date', '>=', query.fromDate);
+      queryBuilder = queryBuilder.where(dateColumn, '>=', query.fromDate);
     }
 
     if (query.toDate) {
-      queryBuilder = queryBuilder.where('invoices.issue_date', '<=', query.toDate);
+      queryBuilder = queryBuilder.where(dateColumn, '<=', query.toDate);
     }
 
     // Apply sorting

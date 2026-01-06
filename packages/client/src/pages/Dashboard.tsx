@@ -1,5 +1,8 @@
 import { useDashboardStats } from '@/hooks/api/useDashboard';
-import { useActiveSession } from '@/hooks/api/useTimeSessions';
+import {
+  useActiveSession,
+  useMostRecentActiveProjectSession,
+} from '@/hooks/api/useTimeSessions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,6 +15,7 @@ import {
   Briefcase,
   AlertCircle,
   TrendingUp,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +24,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { data: stats, isLoading, error } = useDashboardStats();
   const { data: activeSession } = useActiveSession();
+  const { data: recentSession } = useMostRecentActiveProjectSession();
 
   if (isLoading) {
     return (
@@ -48,6 +53,17 @@ export function Dashboard() {
     );
   }
 
+  const handleContinueTimer = () => {
+    if (recentSession?.projectId) {
+      navigate('/time-tracking', {
+        state: {
+          autoStartProjectId: recentSession.projectId,
+          autoStartDescription: recentSession.taskDescription || '',
+        },
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -59,6 +75,28 @@ export function Dashboard() {
           </Button>
         )}
       </div>
+
+      {/* Continue Timer Button */}
+      {recentSession && recentSession.project && (
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={handleContinueTimer}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Continue Timer
+          </Button>
+          <span className="text-sm text-gray-700">
+            <span className="font-medium">{recentSession.project.name}</span>
+            {recentSession.client && (
+              <span className="text-gray-500">
+                {' '}
+                - {recentSession.client.name}
+              </span>
+            )}
+          </span>
+        </div>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -12,7 +12,7 @@ export const timeSessionModel = {
     let queryBuilder = db('time_sessions')
       .select(
         'time_sessions.*',
-        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color, \'isActive\', projects.is_active) as project'),
         db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
       )
       .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
@@ -100,7 +100,7 @@ export const timeSessionModel = {
     const row = await db('time_sessions')
       .select(
         'time_sessions.*',
-        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color, \'isActive\', projects.is_active) as project'),
         db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
       )
       .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
@@ -146,7 +146,7 @@ export const timeSessionModel = {
     const row = await db('time_sessions')
       .select(
         'time_sessions.*',
-        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color, \'isActive\', projects.is_active) as project'),
         db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
       )
       .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
@@ -185,7 +185,7 @@ export const timeSessionModel = {
     const row = await db('time_sessions')
       .select(
         'time_sessions.*',
-        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color, \'isActive\', projects.is_active) as project'),
         db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
       )
       .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
@@ -224,7 +224,7 @@ export const timeSessionModel = {
     let queryBuilder = db('time_sessions')
       .select(
         'time_sessions.*',
-        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color) as project'),
+        db.raw('json_build_object(\'id\', projects.id, \'name\', projects.name, \'color\', projects.color, \'isActive\', projects.is_active) as project'),
         db.raw('json_build_object(\'id\', clients.id, \'name\', clients.name, \'companyName\', clients.company_name) as client')
       )
       .leftJoin('projects', 'time_sessions.project_id', 'projects.id')
