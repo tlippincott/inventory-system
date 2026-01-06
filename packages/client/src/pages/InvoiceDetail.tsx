@@ -5,7 +5,7 @@ import {
   useGeneratePDF,
   useDeleteInvoice,
 } from '@/hooks/api/useInvoices';
-import { invoicesApi } from '@/services/invoices';
+import { API_BASE_URL } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,7 +32,7 @@ export function InvoiceDetail() {
 
     try {
       toast({
-        title: 'Downloading PDF...',
+        title: 'Opening PDF...',
         duration: 2000,
       });
 
@@ -41,29 +41,20 @@ export function InvoiceDetail() {
         await generatePDFMutation.mutateAsync(id);
       }
 
-      // Download PDF
-      const blob = await invoicesApi.downloadPDF(id);
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${invoice.invoiceNumber}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Open PDF in new tab
+      const pdfUrl = `${API_BASE_URL}/invoices/${id}/pdf`;
+      window.open(pdfUrl, '_blank');
 
       toast({
-        title: 'PDF Downloaded',
-        description: `${invoice.invoiceNumber}.pdf downloaded successfully.`,
+        title: 'PDF Opened',
+        description: `${invoice.invoiceNumber}.pdf opened in new tab.`,
       });
     } catch (error: any) {
       toast({
-        title: 'Download Failed',
+        title: 'Failed to Open PDF',
         description:
           error.response?.data?.message ||
-          'Could not download PDF. Please try again.',
+          'Could not open PDF. Please try again.',
         variant: 'destructive',
       });
     }
@@ -173,7 +164,7 @@ export function InvoiceDetail() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            View PDF
           </Button>
           {canChangeStatus && invoice.status === 'draft' && (
             <Button onClick={() => handleStatusChange('sent')}>
@@ -229,6 +220,16 @@ export function InvoiceDetail() {
                 {formatDate(new Date(invoice.dueDate))}
               </p>
             </div>
+            {invoice.servicePeriodEndDate && (
+              <div className="col-span-2">
+                <label className="text-sm font-medium text-gray-500">
+                  Work Period
+                </label>
+                <p className="mt-1 text-gray-900">
+                  For design work done through {formatDate(new Date(invoice.servicePeriodEndDate))}
+                </p>
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium text-gray-500">
                 Status

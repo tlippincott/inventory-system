@@ -34,10 +34,22 @@ export function generateInvoicePDF(data: PDFGenerationData): PDFKit.PDFDocument 
   // Bill to (left) and Payable to (right)
   y = drawBillToAndPayableTo(doc, settings, invoice, y);
 
-  // Work period line (if service period end date is provided)
-  if (invoice.servicePeriodEndDate) {
-    y += 20; // Two lines of space
-    y = drawWorkPeriodLine(doc, invoice, y);
+  // Work period line (if service period end date is provided and valid)
+  if (invoice.servicePeriodEndDate && invoice.servicePeriodEndDate !== null) {
+    try {
+      const serviceDate = typeof invoice.servicePeriodEndDate === 'string'
+        ? new Date(invoice.servicePeriodEndDate)
+        : invoice.servicePeriodEndDate;
+
+      // Only draw if date is valid (not Invalid Date)
+      if (serviceDate && serviceDate instanceof Date && !isNaN(serviceDate.getTime())) {
+        y += 20; // Two lines of space
+        y = drawWorkPeriodLine(doc, invoice, serviceDate, y);
+      }
+    } catch (error) {
+      // Silently skip if date parsing fails
+      console.error('Failed to parse service period end date:', error);
+    }
   }
 
   // Line items table
@@ -243,6 +255,7 @@ function drawBillToAndPayableTo(
 function drawWorkPeriodLine(
   doc: PDFKit.PDFDocument,
   invoice: InvoiceWithClient,
+  serviceDate: Date,
   y: number
 ): number {
   const margin = 50;
@@ -250,7 +263,7 @@ function drawWorkPeriodLine(
   doc
     .fontSize(10)
     .font('Helvetica')
-    .text(`For design work done through ${formatDate(invoice.servicePeriodEndDate!)}`, margin, y);
+    .text(`For design work done through ${formatDate(serviceDate)}`, margin, y);
 
   return y + 30;
 }

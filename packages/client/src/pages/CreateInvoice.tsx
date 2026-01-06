@@ -229,6 +229,15 @@ export function CreateInvoice() {
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
+                    {field.value && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        For design work done through {new Date(field.value).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

@@ -6,7 +6,7 @@ import {
   useUpdateInvoiceStatus,
   useGeneratePDF,
 } from '@/hooks/api/useInvoices';
-import { invoicesApi } from '@/services/invoices';
+import { API_BASE_URL } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -106,7 +106,7 @@ export function Invoices() {
   const handleDownloadPDF = async (invoice: Invoice) => {
     try {
       toast({
-        title: 'Downloading PDF...',
+        title: 'Opening PDF...',
         duration: 2000,
       });
 
@@ -115,29 +115,20 @@ export function Invoices() {
         await generatePDFMutation.mutateAsync(invoice.id);
       }
 
-      // Download PDF
-      const blob = await invoicesApi.downloadPDF(invoice.id);
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${invoice.invoiceNumber}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Open PDF in new tab
+      const pdfUrl = `${API_BASE_URL}/invoices/${invoice.id}/pdf`;
+      window.open(pdfUrl, '_blank');
 
       toast({
-        title: 'PDF Downloaded',
-        description: `${invoice.invoiceNumber}.pdf downloaded successfully.`,
+        title: 'PDF Opened',
+        description: `${invoice.invoiceNumber}.pdf opened in new tab.`,
       });
     } catch (error: any) {
       toast({
-        title: 'Download Failed',
+        title: 'Failed to Open PDF',
         description:
           error.response?.data?.message ||
-          'Could not download PDF. Please try again.',
+          'Could not open PDF. Please try again.',
         variant: 'destructive',
       });
     }
@@ -265,7 +256,7 @@ export function Invoices() {
                           }}
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          Download PDF
+                          View PDF
                         </DropdownMenuItem>
 
                         {getAvailableStatusActions(invoice.status).length > 0 && (

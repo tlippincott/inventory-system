@@ -54,6 +54,7 @@ export const createInvoiceSchema = z.object({
   clientId: z.string().uuid('Invalid client ID'),
   issueDate: z.coerce.date(),
   dueDate: z.coerce.date(),
+  servicePeriodEndDate: z.union([z.coerce.date(), z.literal(''), z.undefined()]).optional().transform(val => val === '' ? undefined : val),
   taxRate: z.number().min(0).max(100).optional(),
   currency: z.string().length(3).optional(),
   notes: z.string().optional(),
