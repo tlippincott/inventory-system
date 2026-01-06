@@ -10,6 +10,7 @@ import { Invoices } from './pages/Invoices';
 import { InvoiceDetail } from './pages/InvoiceDetail';
 import { CreateInvoice } from './pages/CreateInvoice';
 import { CreateInvoiceFromSessions } from './pages/CreateInvoiceFromSessions';
+import { Settings } from './pages/Settings';
 import { Toaster } from './components/ui/toaster';
 
 const queryClient = new QueryClient({
@@ -90,6 +91,16 @@ function App() {
                     >
                       Invoices
                     </NavLink>
+                    <NavLink
+                      to="/settings"
+                      className={({ isActive }) =>
+                        isActive
+                          ? 'border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                      }
+                    >
+                      Settings
+                    </NavLink>
                   </div>
                 </div>
               </div>
@@ -106,6 +117,7 @@ function App() {
               <Route path="/invoices/new" element={<CreateInvoice />} />
               <Route path="/invoices/from-sessions" element={<CreateInvoiceFromSessions />} />
               <Route path="/invoices/:id" element={<InvoiceDetail />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

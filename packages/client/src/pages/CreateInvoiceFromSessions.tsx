@@ -45,6 +45,7 @@ export function CreateInvoiceFromSessions() {
   const [invoiceDetails, setInvoiceDetails] = useState({
     issueDate: formatInputDate(new Date()),
     dueDate: '',
+    servicePeriodEndDate: '',
     taxRate: 0,
     notes: '',
     terms: '',
@@ -185,6 +186,7 @@ export function CreateInvoiceFromSessions() {
         groupByProject: true, // ⭐ Group sessions by project
         issueDate: invoiceDetails.issueDate,
         dueDate: invoiceDetails.dueDate,
+        servicePeriodEndDate: invoiceDetails.servicePeriodEndDate || undefined,
         taxRate: invoiceDetails.taxRate,
         notes: invoiceDetails.notes || undefined,
         terms: invoiceDetails.terms || undefined,
@@ -469,7 +471,20 @@ export function CreateInvoiceFromSessions() {
                     }
                   />
                 </div>
+              </div>
 
+              <div className="max-w-2xl">
+                <Label>Work Period End Date (Optional)</Label>
+                <Input
+                  type="date"
+                  value={invoiceDetails.servicePeriodEndDate}
+                  onChange={(e) =>
+                    setInvoiceDetails({ ...invoiceDetails, servicePeriodEndDate: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 max-w-2xl">
                 <div>
                   <Label>Tax Rate (%)</Label>
                   <Input
@@ -547,6 +562,14 @@ export function CreateInvoiceFromSessions() {
                     {invoiceDetails.issueDate} / {invoiceDetails.dueDate}
                   </p>
                 </div>
+                {invoiceDetails.servicePeriodEndDate && (
+                  <div>
+                    <Label className="text-gray-500">Work Period End Date</Label>
+                    <p className="font-medium">
+                      {invoiceDetails.servicePeriodEndDate}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Line Items Preview (Grouped by Project) */}

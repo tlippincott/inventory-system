@@ -131,6 +131,7 @@ export interface ConvertSessionsToInvoiceDTO {
   groupByProject: boolean; // If true, create one line item per project
   issueDate: Date | string;
   dueDate: Date | string;
+  servicePeriodEndDate?: Date | string;
   taxRate?: number;
   notes?: string;
   terms?: string;

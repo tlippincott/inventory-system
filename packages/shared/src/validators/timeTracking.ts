@@ -67,6 +67,7 @@ export const convertSessionsToInvoiceSchema = z.object({
   groupByProject: z.boolean().default(true),
   issueDate: z.coerce.date(),
   dueDate: z.coerce.date(),
+  servicePeriodEndDate: z.coerce.date().optional(),
   taxRate: z.number().min(0, 'Tax rate must be non-negative').max(100, 'Tax rate cannot exceed 100%').optional(),
   notes: z.string().optional(),
   terms: z.string().optional(),

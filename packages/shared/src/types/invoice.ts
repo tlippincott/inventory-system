@@ -19,6 +19,7 @@ export interface Invoice {
 
   issueDate: Date;
   dueDate: Date;
+  servicePeriodEndDate: Date | null;
 
   status: InvoiceStatus;
 
@@ -56,6 +57,7 @@ export interface CreateInvoiceDTO {
   clientId: string;
   issueDate: Date | string;
   dueDate: Date | string;
+  servicePeriodEndDate?: Date | string;
   taxRate?: number;
   currency?: string;
   notes?: string;

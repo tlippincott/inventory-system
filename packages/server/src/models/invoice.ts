@@ -87,6 +87,7 @@ export const invoiceModel = {
           clientId: row.client_id,
           issueDate: row.issue_date,
           dueDate: row.due_date,
+          servicePeriodEndDate: row.service_period_end_date,
           status: row.status,
           subtotalCents: Number(row.subtotal_cents),
           taxRate: Number(row.tax_rate),
@@ -130,6 +131,7 @@ export const invoiceModel = {
       clientId: row.client_id,
       issueDate: row.issue_date,
       dueDate: row.due_date,
+      servicePeriodEndDate: row.service_period_end_date,
       status: row.status,
       subtotalCents: Number(row.subtotal_cents),
       taxRate: Number(row.tax_rate),
@@ -196,6 +198,7 @@ export const invoiceModel = {
     invoiceNumber: string;
     issueDate: Date;
     dueDate: Date;
+    servicePeriodEndDate?: Date;
     taxRate: number;
     currency: string;
     notes?: string;
@@ -220,6 +223,7 @@ export const invoiceModel = {
           invoice_number: data.invoiceNumber,
           issue_date: data.issueDate,
           due_date: data.dueDate,
+          service_period_end_date: data.servicePeriodEndDate || null,
           tax_rate: data.taxRate,
           subtotal_cents: data.subtotalCents,
           tax_amount_cents: data.taxAmountCents,
@@ -256,6 +260,7 @@ export const invoiceModel = {
         clientId: invoice.client_id,
         issueDate: invoice.issue_date,
         dueDate: invoice.due_date,
+        servicePeriodEndDate: invoice.service_period_end_date,
         status: invoice.status,
         subtotalCents: Number(invoice.subtotal_cents),
         taxRate: Number(invoice.tax_rate),
@@ -293,6 +298,7 @@ export const invoiceModel = {
 
     if (data.issueDate !== undefined) updateData.issue_date = data.issueDate;
     if (data.dueDate !== undefined) updateData.due_date = data.dueDate;
+    if (data.servicePeriodEndDate !== undefined) updateData.service_period_end_date = data.servicePeriodEndDate;
     if (data.taxRate !== undefined) updateData.tax_rate = data.taxRate;
     if (data.currency !== undefined) updateData.currency = data.currency;
     if (data.notes !== undefined) updateData.notes = data.notes;

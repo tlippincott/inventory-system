@@ -23,13 +23,22 @@ export function generateInvoicePDF(data: PDFGenerationData): PDFKit.PDFDocument 
   let y = 50;
 
   // Header
-  y = drawHeader(doc, y);
+  y = drawHeader(doc, settings, y);
 
-  // Business info (left) and Invoice metadata (right)
-  y = drawBusinessAndInvoiceInfo(doc, settings, invoice, y);
+  // Invoice date and number directly under separator line
+  y = drawInvoiceDateAndNumber(doc, settings, invoice, y);
 
-  // Client billing information
-  y = drawClientInfo(doc, invoice, y);
+  // Two lines of space
+  y += 20;
+
+  // Bill to (left) and Payable to (right)
+  y = drawBillToAndPayableTo(doc, settings, invoice, y);
+
+  // Work period line (if service period end date is provided)
+  if (invoice.servicePeriodEndDate) {
+    y += 20; // Two lines of space
+    y = drawWorkPeriodLine(doc, invoice, y);
+  }
 
   // Line items table
   y = drawLineItemsTable(doc, invoice.items, y);
@@ -44,155 +53,210 @@ export function generateInvoicePDF(data: PDFGenerationData): PDFKit.PDFDocument 
 }
 
 /**
- * Draw the "INVOICE" header
+ * Draw the header with "INVOICE" on left, business name on right, and horizontal line
  */
-function drawHeader(doc: PDFKit.PDFDocument, y: number): number {
-  doc
-    .fontSize(28)
-    .font('Helvetica-Bold')
-    .text('INVOICE', 50, y);
+function drawHeader(doc: PDFKit.PDFDocument, settings: UserSettings, y: number): number {
+  const pageWidth = 595.28; // A4 width in points
+  const margin = 50;
 
-  return y + 60;
+  // "INVOICE" on the left - 20pt, Helvetica (light)
+  doc
+    .fontSize(20)
+    .font('Helvetica')
+    .text('INVOICE', margin, y);
+
+  // Business name on the right - 13pt, Helvetica-Bold
+  doc
+    .fontSize(13)
+    .font('Helvetica-Bold')
+    .text(settings.businessName, margin, y, {
+      width: pageWidth - (margin * 2),
+      align: 'right'
+    });
+
+  y += 30;
+
+  // Solid black line across the page - 2.5pt thickness
+  doc
+    .strokeColor('#000000')
+    .lineWidth(2.5)
+    .moveTo(margin, y)
+    .lineTo(pageWidth - margin, y)
+    .stroke();
+
+  return y + 20;
 }
 
 /**
- * Draw business information (left) and invoice metadata (right)
+ * Draw invoice date and invoice number directly under separator line
  */
-function drawBusinessAndInvoiceInfo(
+function drawInvoiceDateAndNumber(
   doc: PDFKit.PDFDocument,
   settings: UserSettings,
   invoice: InvoiceWithClient,
   y: number
 ): number {
-  const startY = y;
+  const pageWidth = 595.28; // A4 width in points
+  const margin = 50;
 
-  // Business information (left side)
-  doc.fontSize(10).font('Helvetica-Bold');
-  doc.text(settings.businessName, 50, y);
+  // Format invoice number as: [prefix]YYYY-MM-DD
+  const invoiceDate = typeof invoice.issueDate === 'string' ? new Date(invoice.issueDate) : invoice.issueDate;
+  const formattedDate = formatDateAsYYYYMMDD(invoiceDate);
+  const invoiceNumber = settings.invoicePrefix ? `${settings.invoicePrefix}${formattedDate}` : formattedDate;
 
-  y += 15;
-  doc.fontSize(9).font('Helvetica');
+  // Left side: "Invoice date:" and the date
+  doc
+    .fontSize(12)
+    .font('Helvetica')
+    .text(`Invoice date: ${formatDate(invoice.issueDate)}`, margin, y);
 
-  if (settings.addressLine1) {
-    doc.text(settings.addressLine1, 50, y);
-    y += 12;
-  }
-
-  if (settings.addressLine2) {
-    doc.text(settings.addressLine2, 50, y);
-    y += 12;
-  }
-
-  const cityStateZip = [
-    settings.city,
-    settings.state,
-    settings.postalCode
-  ].filter(Boolean).join(', ');
-
-  if (cityStateZip) {
-    doc.text(cityStateZip, 50, y);
-    y += 12;
-  }
-
-  if (settings.country) {
-    doc.text(settings.country, 50, y);
-    y += 12;
-  }
-
-  if (settings.email) {
-    y += 5;
-    doc.text(`Email: ${settings.email}`, 50, y);
-    y += 12;
-  }
-
-  if (settings.phone) {
-    doc.text(`Phone: ${settings.phone}`, 50, y);
-    y += 12;
-  }
-
-  // Invoice metadata (right side)
-  const rightX = 350;
-  let rightY = startY;
-
-  doc.fontSize(9).font('Helvetica-Bold');
-  doc.text('Invoice Number:', rightX, rightY);
-  doc.font('Helvetica').text(invoice.invoiceNumber, rightX + 100, rightY);
-  rightY += 15;
-
-  doc.font('Helvetica-Bold').text('Issue Date:', rightX, rightY);
-  doc.font('Helvetica').text(formatDate(invoice.issueDate), rightX + 100, rightY);
-  rightY += 15;
-
-  doc.font('Helvetica-Bold').text('Due Date:', rightX, rightY);
-  doc.font('Helvetica').text(formatDate(invoice.dueDate), rightX + 100, rightY);
-  rightY += 15;
-
-  doc.font('Helvetica-Bold').text('Status:', rightX, rightY);
-  doc.font('Helvetica').text(invoice.status.toUpperCase(), rightX + 100, rightY);
-
-  return Math.max(y, rightY) + 30;
-}
-
-/**
- * Draw client billing information
- */
-function drawClientInfo(
-  doc: PDFKit.PDFDocument,
-  invoice: InvoiceWithClient,
-  y: number
-): number {
-  doc.fontSize(11).font('Helvetica-Bold');
-  doc.text('BILL TO:', 50, y);
-
-  y += 20;
-  doc.fontSize(10).font('Helvetica-Bold');
-
-  if (invoice.client.companyName) {
-    doc.text(invoice.client.companyName, 50, y);
-    y += 15;
-  }
-
-  doc.text(invoice.client.name, 50, y);
-
-  y += 15;
-  doc.fontSize(9).font('Helvetica');
-
-  if (invoice.client.email) {
-    doc.text(invoice.client.email, 50, y);
-    y += 12;
-  }
-
-  if (invoice.client.billingAddressLine1) {
-    doc.text(invoice.client.billingAddressLine1, 50, y);
-    y += 12;
-  }
-
-  if (invoice.client.billingAddressLine2) {
-    doc.text(invoice.client.billingAddressLine2, 50, y);
-    y += 12;
-  }
-
-  const cityStateZip = [
-    invoice.client.billingCity,
-    invoice.client.billingState,
-    invoice.client.billingPostalCode
-  ].filter(Boolean).join(', ');
-
-  if (cityStateZip) {
-    doc.text(cityStateZip, 50, y);
-    y += 12;
-  }
-
-  if (invoice.client.billingCountry) {
-    doc.text(invoice.client.billingCountry, 50, y);
-    y += 12;
-  }
+  // Right side: "Invoice Number:" and the formatted number
+  doc
+    .fontSize(12)
+    .font('Helvetica')
+    .text(`Invoice Number: ${invoiceNumber}`, margin, y, {
+      width: pageWidth - (margin * 2),
+      align: 'right'
+    });
 
   return y + 30;
 }
 
 /**
- * Draw line items table
+ * Draw "Bill to:" (left) and "Payable to:" (right)
+ */
+function drawBillToAndPayableTo(
+  doc: PDFKit.PDFDocument,
+  settings: UserSettings,
+  invoice: InvoiceWithClient,
+  y: number
+): number {
+  const margin = 50;
+  const rightColumnX = 300;
+  let leftY = y;
+  let rightY = y;
+
+  // LEFT SIDE: "Bill to:"
+  doc
+    .fontSize(10)
+    .font('Helvetica-Bold')
+    .text('Bill to:', margin, leftY);
+
+  leftY += 15;
+  doc.fontSize(10).font('Helvetica');
+
+  // Client Name
+  if (invoice.client.name) {
+    doc.text(invoice.client.name, margin, leftY);
+    leftY += 12;
+  }
+
+  // Company Name
+  if (invoice.client.companyName) {
+    doc.text(invoice.client.companyName, margin, leftY);
+    leftY += 12;
+  }
+
+  // Company Street Address (both lines if available)
+  if (invoice.client.billingAddressLine1) {
+    doc.text(invoice.client.billingAddressLine1, margin, leftY);
+    leftY += 12;
+  }
+
+  if (invoice.client.billingAddressLine2) {
+    doc.text(invoice.client.billingAddressLine2, margin, leftY);
+    leftY += 12;
+  }
+
+  // City, State, ZIP
+  const clientCityStateZip = [
+    invoice.client.billingCity,
+    invoice.client.billingState,
+    invoice.client.billingPostalCode
+  ].filter(Boolean).join(', ');
+
+  if (clientCityStateZip) {
+    doc.text(clientCityStateZip, margin, leftY);
+    leftY += 12;
+  }
+
+  // Client email
+  if (invoice.client.email) {
+    doc.text(invoice.client.email, margin, leftY);
+    leftY += 12;
+  }
+
+  // RIGHT SIDE: "Payable to:"
+  doc
+    .fontSize(10)
+    .font('Helvetica-Bold')
+    .text('Payable to:', rightColumnX, rightY);
+
+  rightY += 15;
+  doc.fontSize(10).font('Helvetica');
+
+  // User's name (use ownerName if available, otherwise businessName)
+  const userName = settings.ownerName || settings.businessName;
+  if (userName) {
+    doc.text(userName, rightColumnX, rightY);
+    rightY += 12;
+  }
+
+  // User's street address (both lines if available)
+  if (settings.addressLine1) {
+    doc.text(settings.addressLine1, rightColumnX, rightY);
+    rightY += 12;
+  }
+
+  if (settings.addressLine2) {
+    doc.text(settings.addressLine2, rightColumnX, rightY);
+    rightY += 12;
+  }
+
+  // User's city, state, ZIP
+  const userCityStateZip = [
+    settings.city,
+    settings.state,
+    settings.postalCode
+  ].filter(Boolean).join(', ');
+
+  if (userCityStateZip) {
+    doc.text(userCityStateZip, rightColumnX, rightY);
+    rightY += 12;
+  }
+
+  // Blank line
+  rightY += 12;
+
+  // User's email address
+  if (settings.email) {
+    doc.text(settings.email, rightColumnX, rightY);
+    rightY += 12;
+  }
+
+  return Math.max(leftY, rightY) + 20;
+}
+
+/**
+ * Draw work period line
+ */
+function drawWorkPeriodLine(
+  doc: PDFKit.PDFDocument,
+  invoice: InvoiceWithClient,
+  y: number
+): number {
+  const margin = 50;
+
+  doc
+    .fontSize(10)
+    .font('Helvetica')
+    .text(`For design work done through ${formatDate(invoice.servicePeriodEndDate!)}`, margin, y);
+
+  return y + 30;
+}
+
+/**
+ * Draw line items table (project-based)
  */
 function drawLineItemsTable(
   doc: PDFKit.PDFDocument,
@@ -201,21 +265,21 @@ function drawLineItemsTable(
 ): number {
   const tableTop = y;
   const descriptionX = 50;
-  const quantityX = 350;
-  const priceX = 420;
+  const hoursX = 320;
+  const unitPriceX = 400;
   const totalX = 490;
 
-  // Table header background
-  doc.rect(50, tableTop, 495, 25).fillAndStroke('#E5E7EB', '#D1D5DB');
+  // Table header background - #AA2151 with white text
+  doc.rect(50, tableTop, 495, 25).fillAndStroke('#AA2151', '#AA2151');
 
-  // Table header text
+  // Table header text - white color
   doc
-    .fillColor('#000000')
+    .fillColor('#FFFFFF')
     .fontSize(10)
     .font('Helvetica-Bold')
     .text('Description', descriptionX, tableTop + 8)
-    .text('Qty', quantityX, tableTop + 8)
-    .text('Price', priceX, tableTop + 8)
+    .text('Hours', hoursX, tableTop + 8)
+    .text('Unit Price', unitPriceX, tableTop + 8)
     .text('Total', totalX, tableTop + 8);
 
   y = tableTop + 30;
@@ -231,9 +295,9 @@ function drawLineItemsTable(
       .fillColor('#000000')
       .fontSize(9)
       .font('Helvetica')
-      .text(item.description, descriptionX, y, { width: 290 })
-      .text(item.quantity.toFixed(2), quantityX, y)
-      .text(formatCurrency(item.unitPriceCents), priceX, y)
+      .text(item.description, descriptionX, y, { width: 260 })
+      .text(item.quantity.toFixed(2), hoursX, y)
+      .text(formatCurrency(item.unitPriceCents), unitPriceX, y)
       .text(formatCurrency(item.totalCents), totalX, y);
 
     y += 20;
@@ -243,30 +307,30 @@ function drawLineItemsTable(
 }
 
 /**
- * Draw totals section (subtotal, tax, total)
+ * Draw totals section (subtotal, Hawaii GET tax, total)
  */
 function drawTotalsSection(
   doc: PDFKit.PDFDocument,
   invoice: InvoiceWithClient,
   y: number
 ): number {
-  const labelX = 400;
+  const labelX = 350;
   const amountX = 490;
 
   // Subtotal
-  doc.fontSize(9).font('Helvetica');
-  doc.text('Subtotal:', labelX, y);
+  doc.fontSize(10).font('Helvetica');
+  doc.text('Subtotal', labelX, y);
   doc.text(formatCurrency(invoice.subtotalCents, invoice.currency), amountX, y);
   y += 15;
 
-  // Tax
-  doc.text(`Tax (${invoice.taxRate}%):`, labelX, y);
+  // Hawaii GET Tax (4.71%)
+  doc.text('Hawaii GET Tax (4.71%)', labelX, y);
   doc.text(formatCurrency(invoice.taxAmountCents, invoice.currency), amountX, y);
   y += 20;
 
   // Total (bold and larger)
   doc.fontSize(11).font('Helvetica-Bold');
-  doc.text('TOTAL:', labelX, y);
+  doc.text('Total', labelX, y);
   doc.text(formatCurrency(invoice.totalCents, invoice.currency), amountX, y);
 
   return y + 30;
@@ -317,4 +381,15 @@ function formatDate(date: Date | string): string {
     month: 'long',
     day: 'numeric'
   });
+}
+
+/**
+ * Format date as YYYY-MM-DD
+ */
+function formatDateAsYYYYMMDD(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

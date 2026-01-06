@@ -34,6 +34,7 @@ const createInvoiceSchema = z.object({
   clientId: z.string().min(1, 'Client is required'),
   issueDate: z.string().min(1, 'Issue date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
+  servicePeriodEndDate: z.string().optional(),
   taxRate: z.coerce.number().min(0).max(100),
   currency: z.string().default('USD'),
   notes: z.string().optional(),
@@ -65,6 +66,7 @@ export function CreateInvoice() {
       clientId: '',
       issueDate: formatInputDate(new Date()),
       dueDate: '',
+      servicePeriodEndDate: '',
       taxRate: 0,
       currency: 'USD',
       notes: '',
@@ -115,6 +117,7 @@ export function CreateInvoice() {
         clientId: data.clientId,
         issueDate: data.issueDate,
         dueDate: data.dueDate,
+        servicePeriodEndDate: data.servicePeriodEndDate || undefined,
         taxRate: data.taxRate,
         currency: data.currency,
         notes: data.notes || undefined,
@@ -216,6 +219,20 @@ export function CreateInvoice() {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="servicePeriodEndDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Work Period End Date (Optional)</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField
