@@ -50,22 +50,25 @@ export const dashboardService = {
       .count('id as count')
       .first();
 
-    // Get unbilled time sessions statistics
+    // Get unbilled time sessions statistics (only stopped sessions with calculated amounts > 0)
     const unbilledStats = await db('time_sessions')
       .whereNull('invoice_item_id')
-      .where({ is_billable: true })
+      .where({ is_billable: true, status: 'stopped' })
       .whereNotNull('duration_seconds')
+      .whereNotNull('billable_amount_cents')
+      .where('billable_amount_cents', '>', 0)
       .select(
         db.raw('COALESCE(SUM(duration_seconds), 0) as total_seconds'),
         db.raw('COALESCE(SUM(billable_amount_cents), 0) as total_amount_cents')
       )
       .first();
 
-    // Convert cents to dollars and seconds to hours
+    // Keep amounts in cents for consistency with the rest of the API
+    // The frontend formatCurrency function expects cents
     return {
-      totalRevenue: Math.round((invoiceStats?.total_revenue_cents || 0) / 100),
-      outstandingAmount: Math.round((invoiceStats?.outstanding_cents || 0) / 100),
-      overdueAmount: Math.round((invoiceStats?.overdue_cents || 0) / 100),
+      totalRevenue: parseInt(String(invoiceStats?.total_revenue_cents || '0')),
+      outstandingAmount: parseInt(String(invoiceStats?.outstanding_cents || '0')),
+      overdueAmount: parseInt(String(invoiceStats?.overdue_cents || '0')),
       totalInvoices: parseInt(String(invoiceStats?.total_invoices || '0')),
       paidInvoices: parseInt(String(invoiceStats?.paid_invoices || '0')),
       unpaidInvoices: parseInt(String(invoiceStats?.unpaid_invoices || '0')),
@@ -73,7 +76,7 @@ export const dashboardService = {
       activeProjects: parseInt(String(projectCount?.count || '0')),
       activeClients: parseInt(String(clientCount?.count || '0')),
       unbilledHours: Math.round((unbilledStats?.total_seconds || 0) / 3600 * 100) / 100, // Round to 2 decimals
-      unbilledAmount: Math.round((unbilledStats?.total_amount_cents || 0) / 100),
+      unbilledAmount: parseInt(String(unbilledStats?.total_amount_cents || '0')),
     };
   },
 };

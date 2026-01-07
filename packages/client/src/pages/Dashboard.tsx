@@ -24,7 +24,7 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { data: stats, isLoading, error } = useDashboardStats();
   const { data: activeSession } = useActiveSession();
-  const { data: recentSession } = useMostRecentActiveProjectSession();
+  const { data: recentSession, isLoading: isLoadingRecentSession } = useMostRecentActiveProjectSession();
 
   if (isLoading) {
     return (
@@ -77,25 +77,35 @@ export function Dashboard() {
       </div>
 
       {/* Continue Timer Button */}
-      {recentSession && recentSession.project && (
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={handleContinueTimer}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Continue Timer
-          </Button>
-          <span className="text-sm text-gray-700">
-            <span className="font-medium">{recentSession.project.name}</span>
-            {recentSession.client && (
-              <span className="text-gray-500">
-                {' '}
-                - {recentSession.client.name}
+      {!activeSession && !isLoadingRecentSession && (
+        <>
+          {recentSession && recentSession.project ? (
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleContinueTimer}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Continue Timer
+              </Button>
+              <span className="text-sm text-gray-700">
+                <span className="font-medium">{recentSession.project.name}</span>
+                {recentSession.client && (
+                  <span className="text-gray-500">
+                    {' '}
+                    - {recentSession.client.name}
+                  </span>
+                )}
               </span>
-            )}
-          </span>
-        </div>
+            </div>
+          ) : (
+            <Alert>
+              <AlertDescription>
+                No recent sessions with active projects. Start a timer or activate a project to use the Continue Timer feature.
+              </AlertDescription>
+            </Alert>
+          )}
+        </>
       )}
 
       {/* Key Metrics */}

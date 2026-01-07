@@ -6,6 +6,7 @@ import type {
   UpdateTimeSessionDTO,
 } from '@invoice-system/shared';
 import type { SessionFilters } from '@/types';
+import { dashboardKeys } from './useDashboard';
 
 /**
  * Query keys for time sessions
@@ -244,6 +245,8 @@ export function useStopSession() {
       queryClient.setQueryData(timeSessionKeys.active(), null);
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
+      // Invalidate dashboard to update unbilled time
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -263,6 +266,8 @@ export function useUpdateSession() {
       });
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.active() });
+      // Invalidate dashboard to update unbilled time
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -278,6 +283,8 @@ export function useDeleteSession() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
+      // Invalidate dashboard to update unbilled time
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -296,6 +303,8 @@ export function useBulkUpdateSessions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
+      // Invalidate dashboard to update unbilled time
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }

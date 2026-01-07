@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { invoicesApi } from '@/services/invoices';
 import { timeSessionKeys } from './useTimeSessions';
+import { dashboardKeys } from './useDashboard';
 import type {
   Invoice,
   CreateInvoiceDTO,
@@ -59,7 +60,7 @@ export function useCreateInvoice() {
     mutationFn: (data: CreateInvoiceDTO) => invoicesApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -87,7 +88,7 @@ export function useCreateInvoiceFromSessions() {
       // Invalidate unbilled sessions (they're now billed)
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
       // Invalidate dashboard stats
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -122,7 +123,7 @@ export function useDeleteInvoice() {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
       // Deleting invoice unbills the sessions
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
@@ -171,7 +172,7 @@ export function useUpdateInvoiceStatus() {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
       // If status changed to 'paid', update dashboard revenue stats
       if (variables.status === 'paid') {
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
       }
     },
   });
@@ -263,6 +264,7 @@ export function useDeleteLineItem() {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
       // Deleting item unbills associated sessions
       queryClient.invalidateQueries({ queryKey: timeSessionKeys.unbilled() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats() });
     },
   });
 }
